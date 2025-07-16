@@ -1,9 +1,12 @@
 // src/puppeteer/puppeteer.service.ts
 import { Injectable, OnModuleDestroy, Logger } from "@nestjs/common";
-import { Browser } from "puppeteer-core";
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-
+import { Browser, Page } from "puppeteer-core";
 import puppeteer from "puppeteer-extra";
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+import {
+  generateRandomFingerprintForKorea,
+  applyFingerprint,
+} from "../utils/fingerprintGenerator";
 
 @Injectable()
 export class PuppeteerService implements OnModuleDestroy {
@@ -11,15 +14,12 @@ export class PuppeteerService implements OnModuleDestroy {
   private browsers: Browser[] = [];
 
   async createBrowser(): Promise<Browser> {
-    puppeteer.use(StealthPlugin());
-
+    // puppeteer.use(StealthPlugin());
     const { connect } = require("puppeteer-real-browser");
 
-    const { browser, page } = await connect({
+    const { browser, page }: { browser: Browser; page: Page } = await connect({
       headless: false,
-      //   devtools: true, // 자동으로 개발자 도구 열기
       executablePath: process.env.CHROME_PATH,
-
       args: [],
       customConfig: {
         defaultViewport: null,
@@ -37,6 +37,11 @@ export class PuppeteerService implements OnModuleDestroy {
       ignoreAllFlags: false,
     });
 
+    // ✅ 브라우저 지문 랜덤 설정
+    const publicIp = await this.getPublicIp();
+    const fingerprint = await generateRandomFingerprintForKorea(publicIp);
+    //await applyFingerprint(page, fingerprint);
+    await applyFingerprint(page, fingerprint);
     browser.on("targetcreated", async (target) => {
       const page = await target.page();
       if (page) {
@@ -45,17 +50,10 @@ export class PuppeteerService implements OnModuleDestroy {
       }
     });
 
-    await page.evaluateOnNewDocument(() => {
-      window.open = () => {
-        console.log("window.open 호출 차단");
-        return null;
-      };
-    });
-
-    // ✅ 브라우저 지문 랜덤 설정
-    await this.applyRandomFingerprint(page);
-
-    await page.goto("https://amiunique.org/fingerprint", {
+    // await page.goto("https://amiunique.org/fingerprint", {
+    //   waitUntil: "domcontentloaded",
+    // });
+    await page.goto("https://www.geolocation.com", {
       waitUntil: "domcontentloaded",
     });
 
@@ -63,24 +61,15 @@ export class PuppeteerService implements OnModuleDestroy {
     return browser;
   }
 
-  private async applyRandomFingerprint(page: any) {
-    await page.evaluateOnNewDocument(() => {
-      const userAgents = [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/134.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-      ];
-      const randomUA =
-        userAgents[Math.floor(Math.random() * userAgents.length)];
-      Object.defineProperty(navigator, "userAgent", {
-        get: () => randomUA,
-      });
-      Object.defineProperty(navigator, "hardwareConcurrency", {
-        get: () => [2, 4, 8][Math.floor(Math.random() * 3)],
-      });
-      Object.defineProperty(navigator, "webdriver", {
-        get: () => false,
-      });
-    });
+  private async getPublicIp(): Promise<string> {
+    try {
+      const response = await fetch("https://api.ipify.org?format=json");
+      const data = await response.json();
+      return data.ip;
+    } catch (e) {
+      this.logger.error("공인 IP 가져오기 실패, 기본 IP 사용", e);
+      return "1.1.1.1"; // fallback
+    }
   }
 
   async onModuleDestroy() {

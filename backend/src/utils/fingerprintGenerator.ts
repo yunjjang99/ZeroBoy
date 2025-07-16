@@ -3,7 +3,23 @@
 import { Page } from "puppeteer-core";
 import axios from "axios";
 
-// GPU 벤더 정보를 랜덤하게 선택
+interface GeolocationCoordinates {
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+  altitude: number | null;
+  altitudeAccuracy: number | null;
+  heading: number | null;
+  speed: number | null;
+  toJSON(): any;
+}
+
+interface GeolocationPosition {
+  coords: GeolocationCoordinates;
+  timestamp: number;
+  toJSON(): any;
+}
+
 const GPU_DATABASE = {
   "Google Inc. (Intel)": [
     "ANGLE (Intel, Intel(R) HD Graphics 630 (0x00005912) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -91,78 +107,27 @@ const GPU_DATABASE = {
 };
 
 const USER_AGENTS = [
-  // ✅ Windows 10 - Chrome
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:130.0) Gecko/20100101 Firefox/130.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
+  //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.6478.127 Safari/537.36",
+  //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+  //"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0",
+  //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.2420.81",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0",
+  // // 추가된 Win32 기반 User-Agent 목록 (Cloudflare 우회 검증됨)
+  // "Mozilla/5.0 (Windows NT 10.0; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.5790.170 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 10.0; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.199 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 10.0; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.5672.127 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 10.0; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.5615.167 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 10.0; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.5563.146 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 6.1; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 6.1; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 6.1; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 5.1; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 5.1; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 6.1; Win32; x86) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36",
+  // "Mozilla/5.0 (Windows NT 10.0; Win32; x86; rv:116.0) Gecko/20100101 Firefox/116.0",
+  // "Mozilla/5.0 (Windows NT 10.0; Win32; x86; rv:115.0) Gecko/20100101 Firefox/115.0",
+  // "Mozilla/5.0 (Windows NT 6.1; Win32; x86; rv:102.0) Gecko/20100101 Firefox/102.0",
 ];
-
-const getRandomNearbyLocation = (lat: number, lon: number, radiusKm = 3) => {
-  const R = 6371; // 지구 반지름 (km)
-  const randomRadius = Math.random() * radiusKm; // 0~radiusKm 사이 랜덤 거리
-  const randomAngle = Math.random() * 2 * Math.PI; // 0~360도 사이 랜덤 방향
-
-  // 위도, 경도 변환
-  const deltaLat = (randomRadius / R) * (180 / Math.PI);
-  const deltaLon =
-    ((randomRadius / R) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
-
-  return {
-    latitude: lat + deltaLat * Math.cos(randomAngle),
-    longitude: lon + deltaLon * Math.sin(randomAngle),
-  };
-};
-
-const getLocationFromIP = async (ip: string) => {
-  try {
-    const response = await axios.get(`https://ipapi.co/${ip}/json/`);
-
-    if (response.status !== 200 || !response.data) {
-      throw new Error("IP 위치 정보를 가져올 수 없습니다.");
-    }
-
-    const data = response.data;
-    return {
-      latitude: data.latitude,
-      longitude: data.longitude,
-    };
-  } catch (error) {
-    console.warn("❌ IP 기반 위치 조회 실패:", error.message);
-    return null;
-  }
-};
 
 const getRandomCoordinate = (min: number, max: number) => {
   return Math.random() * (max - min) + min;
@@ -170,17 +135,41 @@ const getRandomCoordinate = (min: number, max: number) => {
 
 const getRandomSouthKoreaLocation = () => {
   return {
-    latitude: getRandomCoordinate(33.0, 38.6), // 대한민국 내 랜덤 위도
-    longitude: getRandomCoordinate(124.6, 131.9), // 대한민국 내 랜덤 경도
+    latitude: getRandomCoordinate(33.0, 38.6),
+    longitude: getRandomCoordinate(124.6, 131.9),
   };
 };
 
-const getSmartRandomLocation = async (publicIp: string) => {
-  const location = await getLocationFromIP(publicIp);
-  console.log(location, "lo");
-  if (!location) return getRandomSouthKoreaLocation(); // 기본값: 한국 내 랜덤
+const getLocationFromIP = async (ip: string) => {
+  try {
+    const response = await axios.get(`https://ipapi.co/${ip}/json/`);
+    if (response.status !== 200 || !response.data)
+      throw new Error("No location data");
+    return {
+      latitude: response.data.latitude,
+      longitude: response.data.longitude,
+    };
+  } catch {
+    return null;
+  }
+};
 
-  return getRandomNearbyLocation(location.latitude, location.longitude, 3);
+const getRandomNearbyLocation = (lat: number, lon: number, radiusKm = 3) => {
+  const R = 6371;
+  const r = Math.random() * radiusKm;
+  const angle = Math.random() * 2 * Math.PI;
+  const dLat = (r / R) * (180 / Math.PI);
+  const dLon = ((r / R) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
+  return {
+    latitude: lat + dLat * Math.cos(angle),
+    longitude: lon + dLon * Math.sin(angle),
+  };
+};
+
+const getSmartRandomLocation = async (ip: string) => {
+  const location = await getLocationFromIP(ip);
+  if (!location) return getRandomSouthKoreaLocation();
+  return getRandomNearbyLocation(location.latitude, location.longitude);
 };
 
 function getRandomGpuVendorAndModel() {
@@ -191,7 +180,8 @@ function getRandomGpuVendorAndModel() {
   return { vendor, model };
 }
 
-export function generateRandomFingerprintForKorea() {
+export async function generateRandomFingerprintForKorea(publicIp: string) {
+  const { latitude, longitude } = await getSmartRandomLocation(publicIp);
   const userAgent = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
   const { vendor, model } = getRandomGpuVendorAndModel();
 
@@ -211,24 +201,29 @@ export function generateRandomFingerprintForKorea() {
     gpuVendor: vendor,
     gpuModel: model,
     webdriver: false,
+    latitude,
+    longitude,
   };
 }
 
 export async function applyFingerprint(
   page: Page,
-  fingerprint: ReturnType<typeof generateRandomFingerprintForKorea>
+  fingerprint: Awaited<ReturnType<typeof generateRandomFingerprintForKorea>>
 ) {
-  await page.setUserAgent(fingerprint.userAgent);
-
+  // await page.setUserAgent(fingerprint.userAgent); // 통과 탈락
+  await page.setGeolocation({
+    latitude: fingerprint.latitude,
+    longitude: fingerprint.longitude,
+    accuracy: 50,
+  });
   await page.evaluateOnNewDocument((fp) => {
     Object.defineProperty(navigator, "language", { get: () => fp.language });
-    Object.defineProperty(navigator, "languages", { get: () => fp.languages });
+    // Object.defineProperty(navigator, "languages", { get: () => fp.languages });
     Object.defineProperty(navigator, "platform", { get: () => fp.platform });
     Object.defineProperty(navigator, "hardwareConcurrency", {
       get: () => fp.hardwareConcurrency,
     });
     Object.defineProperty(navigator, "webdriver", { get: () => fp.webdriver });
-
     Object.defineProperty(screen, "colorDepth", { get: () => fp.colorDepth });
     Object.defineProperty(screen, "width", {
       get: () => fp.screenResolution.width,
@@ -236,14 +231,12 @@ export async function applyFingerprint(
     Object.defineProperty(screen, "height", {
       get: () => fp.screenResolution.height,
     });
-
     const originalGetParameter = WebGLRenderingContext.prototype.getParameter;
     WebGLRenderingContext.prototype.getParameter = function (param) {
-      if (param === 37445) return fp.gpuVendor; // UNMASKED_VENDOR_WEBGL
-      if (param === 37446) return fp.gpuModel; // UNMASKED_RENDERER_WEBGL
+      if (param === 37445) return fp.gpuVendor;
+      if (param === 37446) return fp.gpuModel;
       return originalGetParameter.call(this, param);
     };
-
     const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
     HTMLCanvasElement.prototype.toDataURL = function (...args) {
       const ctx = this.getContext("2d");
@@ -251,11 +244,52 @@ export async function applyFingerprint(
       ctx.fillRect(0, 0, 10, 10);
       return originalToDataURL.apply(this, args);
     };
-
     Object.defineProperty(Intl.DateTimeFormat.prototype, "resolvedOptions", {
       value: function () {
         return { timeZone: fp.timezone };
       },
     });
+    const coords = {
+      latitude: fp.latitude,
+      longitude: fp.longitude,
+      accuracy: 50,
+      altitude: null,
+      altitudeAccuracy: null,
+      heading: null,
+      speed: null,
+      toJSON: () => ({
+        latitude: fp.latitude,
+        longitude: fp.longitude,
+        accuracy: 50,
+        altitude: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+      }),
+    };
+    const position = {
+      coords,
+      timestamp: Date.now(),
+      toJSON: () => ({
+        coords: coords.toJSON(),
+        timestamp: Date.now(),
+      }),
+    };
+    const getCurrentPosition = (
+      success: PositionCallback,
+      error?: PositionErrorCallback
+    ) => {
+      success(position as GeolocationPosition);
+    };
+    const watchPosition = (
+      success: PositionCallback,
+      error?: PositionErrorCallback
+    ) => {
+      const watchId = Math.floor(Math.random() * 10000);
+      success(position as GeolocationPosition);
+      return watchId;
+    };
+    navigator.geolocation.getCurrentPosition = getCurrentPosition;
+    navigator.geolocation.watchPosition = watchPosition;
   }, fingerprint);
 }
