@@ -7,14 +7,17 @@ import {
   generateRandomFingerprintForKorea,
   applyFingerprint,
 } from "../utils/fingerprintGenerator";
+import { FingerprintService } from "@/fingerprint/fingerprint.service";
 
 @Injectable()
 export class PuppeteerService implements OnModuleDestroy {
+  constructor(private readonly fingerprintService: FingerprintService) {}
+
   private readonly logger = new Logger(PuppeteerService.name);
   private browsers: Browser[] = [];
 
   async createBrowser(): Promise<Browser> {
-    // puppeteer.use(StealthPlugin());
+    //  puppeteer.use(StealthPlugin());
     const { connect } = require("puppeteer-real-browser");
 
     const { browser, page }: { browser: Browser; page: Page } = await connect({
@@ -40,6 +43,9 @@ export class PuppeteerService implements OnModuleDestroy {
     // ✅ 브라우저 지문 랜덤 설정
     const publicIp = await this.getPublicIp();
     const fingerprint = await generateRandomFingerprintForKorea(publicIp);
+    const uuid = await this.fingerprintService.saveFingerprint(fingerprint);
+    this.logger.log(`📦 브라우저 Fingerprint 저장됨: ${uuid}`);
+
     //await applyFingerprint(page, fingerprint);
     await applyFingerprint(page, fingerprint);
     browser.on("targetcreated", async (target) => {
@@ -50,12 +56,12 @@ export class PuppeteerService implements OnModuleDestroy {
       }
     });
 
-    // await page.goto("https://amiunique.org/fingerprint", {
-    //   waitUntil: "domcontentloaded",
-    // });
-    await page.goto("https://www.geolocation.com", {
+    await page.goto("https://amiunique.org/fingerprint", {
       waitUntil: "domcontentloaded",
     });
+    // await page.goto("https://www.geolocation.com", {
+    //   waitUntil: "domcontentloaded",
+    // });
 
     this.browsers.push(browser);
     return browser;

@@ -11,6 +11,7 @@ import { AppLogger } from "./app.logger";
 import { APP_INTERCEPTOR } from "@nestjs/core";
 import { LoggingInterceptor } from "./common/interceptor/logging.interceptor";
 import { PuppeteerModule } from "./puppeteer/puppeteer.module";
+import { FingerprintModule } from "./fingerprint/fingerprint.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { PuppeteerModule } from "./puppeteer/puppeteer.module";
     AuthModule,
     UserModule,
     PuppeteerModule,
+    FingerprintModule,
   ],
   providers: [
     AppLogger,
