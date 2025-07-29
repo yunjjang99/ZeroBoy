@@ -105,13 +105,13 @@ export class PuppeteerService implements OnModuleDestroy {
     await applyFingerprint(page, fingerprint);
 
     // 4. 차단 방지: 새 창 생성 자동 종료
-    browser.on("targetcreated", async (target) => {
-      const newPage = await target.page();
-      if (newPage) {
-        console.log("새 창 생성 감지됨. 차단 시도");
-        await newPage.close();
-      }
-    });
+    // browser.on("targetcreated", async (target) => {
+    //   const newPage = await target.page();
+    //   if (newPage) {
+    //     console.log("새 창 생성 감지됨. 차단 시도");
+    //     await newPage.close();
+    //   }
+    // });
 
     // 5. 검증용 페이지 접속
     await page.goto("https://amiunique.org/fingerprint", {
