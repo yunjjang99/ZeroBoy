@@ -19,11 +19,24 @@ export class PuppeteerController {
     // await page.close();
     return success({ title });
   }
-  catch(err) {
-    console.error("Puppeteer Error:", err);
-    return failure({
-      message: "브라우저 실행 중 오류가 발생했습니다.",
-      status: 500,
-    });
+
+  @Post("reopen")
+  async reopenBrowser(@Body("uuid") uuid: string) {
+    try {
+      if (!uuid) {
+        return failure({ message: "UUID가 비어 있습니다." });
+      }
+
+      const browser = await this.puppeteerService.reopenBrowser(uuid);
+
+      const pages = await browser.pages();
+      const page = pages[0];
+      const title = await page.title();
+
+      return success({ title });
+    } catch (err) {
+      console.error("reopen error:", err);
+      return failure(err.message ?? { message: err.message });
+    }
   }
 }

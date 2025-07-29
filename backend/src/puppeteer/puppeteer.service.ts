@@ -48,21 +48,72 @@ export class PuppeteerService implements OnModuleDestroy {
 
     //await applyFingerprint(page, fingerprint);
     await applyFingerprint(page, fingerprint);
+    // browser.on("targetcreated", async (target) => {
+    //   const page = await target.page();
+    //   if (page) {
+    //     console.log("새 창 생성 감지됨. 차단 시도");
+    //     await page.close();
+    //   }
+    // });
+
+    // await page.goto("https://amiunique.org/fingerprint", {
+    //   waitUntil: "domcontentloaded",
+    // });
+    await page.goto("https://www.geolocation.com", {
+      waitUntil: "domcontentloaded",
+    });
+
+    this.browsers.push(browser);
+    return browser;
+  }
+
+  async reopenBrowser(uuid: string): Promise<Browser> {
+    const { connect } = require("puppeteer-real-browser");
+
+    // 1. DB에서 fingerprint 불러오기
+    const fingerprint = await this.fingerprintService.getFingerprint(uuid);
+    if (!fingerprint) {
+      throw new Error(`해당 UUID에 대한 Fingerprint 없음: ${uuid}`);
+    }
+
+    // 2. 브라우저 실행
+    const { browser, page }: { browser: Browser; page: Page } = await connect({
+      headless: false,
+      executablePath: process.env.CHROME_PATH,
+      args: [],
+      customConfig: {
+        defaultViewport: null,
+      },
+      turnstile: false,
+      connectOption: {
+        defaultViewport: {
+          width: 1920,
+          height: 1080,
+          deviceScaleFactor: 1,
+        },
+      },
+      disableXvfb: false,
+      ignoreAllFlags: false,
+    });
+
+    // 3. applyFingerprint 적용
+    await applyFingerprint(page, fingerprint);
+
+    // 4. 차단 방지: 새 창 생성 자동 종료
     browser.on("targetcreated", async (target) => {
-      const page = await target.page();
-      if (page) {
+      const newPage = await target.page();
+      if (newPage) {
         console.log("새 창 생성 감지됨. 차단 시도");
-        await page.close();
+        await newPage.close();
       }
     });
 
+    // 5. 검증용 페이지 접속
     await page.goto("https://amiunique.org/fingerprint", {
       waitUntil: "domcontentloaded",
     });
-    // await page.goto("https://www.geolocation.com", {
-    //   waitUntil: "domcontentloaded",
-    // });
 
+    this.logger.log(`♻️ Fingerprint 재적용 브라우저 실행됨 (UUID: ${uuid})`);
     this.browsers.push(browser);
     return browser;
   }
