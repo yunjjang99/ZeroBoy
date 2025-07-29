@@ -1,5 +1,5 @@
 // src/puppeteer-test/puppeteer.controller.ts
-import { Controller, Post, Body } from "@nestjs/common";
+import { Controller, Post, Body, Get } from "@nestjs/common";
 import { PuppeteerService } from "./puppeteer.service";
 import { failure, success } from "@/utils/functionalUtil";
 
@@ -11,13 +11,13 @@ export class PuppeteerController {
   async launchBrowser(@Body("url") url: string) {
     const browser = await this.puppeteerService.createBrowser();
 
-    const pages = await browser.pages();
+    const pages = await browser.browser.pages();
     const page = pages[0]; // 첫 번째 탭
 
     // await page.goto(url, { waitUntil: "networkidle2", timeout: 10000 });
     const title = await page.title();
     // await page.close();
-    return success({ title });
+    return success({ title, uuid: browser.uuid });
   }
 
   @Post("reopen")
@@ -38,5 +38,11 @@ export class PuppeteerController {
       console.error("reopen error:", err);
       return failure(err.message ?? { message: err.message });
     }
+  }
+
+  @Get("status")
+  async browserStatus() {
+    const statuses = await this.puppeteerService.getBrowserStatuses();
+    return success({ count: statuses.length, statuses });
   }
 }

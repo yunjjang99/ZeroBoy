@@ -9,14 +9,19 @@ import {
 } from "../utils/fingerprintGenerator";
 import { FingerprintService } from "@/fingerprint/fingerprint.service";
 
+export interface PuppeteerInstance {
+  browser: Browser;
+  uuid: string;
+}
+
 @Injectable()
 export class PuppeteerService implements OnModuleDestroy {
   constructor(private readonly fingerprintService: FingerprintService) {}
 
   private readonly logger = new Logger(PuppeteerService.name);
-  private browsers: Browser[] = [];
+  private readonly browsers = new Map<string, Browser>();
 
-  async createBrowser(): Promise<Browser> {
+  async createBrowser(): Promise<PuppeteerInstance> {
     //  puppeteer.use(StealthPlugin());
     const { connect } = require("puppeteer-real-browser");
 
@@ -63,8 +68,8 @@ export class PuppeteerService implements OnModuleDestroy {
       waitUntil: "domcontentloaded",
     });
 
-    this.browsers.push(browser);
-    return browser;
+    this.browsers.set(uuid, browser);
+    return { browser, uuid };
   }
 
   async reopenBrowser(uuid: string): Promise<Browser> {
@@ -114,8 +119,31 @@ export class PuppeteerService implements OnModuleDestroy {
     });
 
     this.logger.log(`♻️ Fingerprint 재적용 브라우저 실행됨 (UUID: ${uuid})`);
-    this.browsers.push(browser);
+    this.browsers.set(uuid, browser);
     return browser;
+  }
+
+  async getBrowserStatuses(): Promise<
+    { uuid: string; isConnected: boolean; tabs: string[] }[]
+  > {
+    const statuses: { uuid: string; isConnected: boolean; tabs: string[] }[] =
+      [];
+
+    for (const [uuid, browser] of this.browsers.entries()) {
+      const isConnected = browser.isConnected();
+      let tabs: string[] = [];
+
+      try {
+        const pages = await browser.pages();
+        tabs = await Promise.all(pages.map((p) => p.url()));
+      } catch (e) {
+        tabs = ["탭 정보를 가져올 수 없음"];
+      }
+
+      statuses.push({ uuid, isConnected, tabs });
+    }
+
+    return statuses;
   }
 
   private async getPublicIp(): Promise<string> {
@@ -131,6 +159,13 @@ export class PuppeteerService implements OnModuleDestroy {
 
   async onModuleDestroy() {
     this.logger.log("모듈 종료, 브라우저 모두 종료");
-    await Promise.all(this.browsers.map((b) => b.close()));
+
+    // Map의 values를 배열로 변환 후 map 사용
+    const closeTasks = Array.from(this.browsers.values()).map((browser) =>
+      browser.close()
+    );
+
+    await Promise.all(closeTasks);
+    this.browsers.clear();
   }
 }
