@@ -4,6 +4,7 @@ import { PuppeteerService } from "./puppeteer.service";
 import { PuppeteerController } from "./puppeteer.controller";
 import { FingerprintService } from "@/fingerprint/fingerprint.service";
 import { FingerprintModule } from "@/fingerprint/fingerprint.module";
+import { PuppeteerGateway } from "./puppeteer.gateway";
 
 @Global()
 @Module({
@@ -11,7 +12,7 @@ import { FingerprintModule } from "@/fingerprint/fingerprint.module";
     FingerprintModule, // 👈 반드시 import
     // TypeOrmModule.forFeature([...]) // 필요시 추가
   ],
-  providers: [PuppeteerService],
+  providers: [PuppeteerService, PuppeteerGateway],
   controllers: [PuppeteerController],
   exports: [PuppeteerService],
 })
