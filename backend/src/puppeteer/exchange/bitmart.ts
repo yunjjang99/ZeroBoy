@@ -1,4 +1,4 @@
-import { Page } from "puppeteer";
+import { Page } from "puppeteer-core";
 import { TradeOrderData } from "src/interface/elementParse.interface";
 
 export async function clickBitmartOrderButton(

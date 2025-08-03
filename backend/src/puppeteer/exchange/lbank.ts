@@ -1,5 +1,5 @@
 // src/puppeteer/exchange/lbank.ts
-import { Page } from "puppeteer";
+import { Page } from "puppeteer-core";
 import { TradeOrderData } from "src/interface/elementParse.interface";
 
 export async function clickOrderboardButton(
@@ -159,10 +159,10 @@ export async function getLeverageValues(
     };
 
     const longText = longElement
-      ? longElement.textContent?.trim() ?? null
+      ? (longElement.textContent?.trim() ?? null)
       : null;
     const shortText = shortElement
-      ? shortElement.textContent?.trim() ?? null
+      ? (shortElement.textContent?.trim() ?? null)
       : null;
 
     return {

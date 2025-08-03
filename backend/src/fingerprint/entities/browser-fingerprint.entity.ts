@@ -47,6 +47,18 @@ export class BrowserFingerprint {
   @Column()
   publicIp: string;
 
+  @Column({ default: "unknown" })
+  siteUrl: string;
+
+  @Column("simple-json", { nullable: true })
+  cookies?: any[];
+
+  @Column("text", { nullable: true })
+  localStorage?: string;
+
+  @Column("text", { nullable: true })
+  sessionStorage?: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }

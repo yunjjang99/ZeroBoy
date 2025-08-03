@@ -1,14 +1,12 @@
 // src/puppeteer/puppeteer.service.ts
 import { Injectable, OnModuleDestroy, Logger } from "@nestjs/common";
 import { Browser, Page, CDPSession } from "puppeteer-core";
-import puppeteer from "puppeteer-extra";
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 import {
   generateRandomFingerprintForKorea,
   applyFingerprint,
 } from "../utils/fingerprintGenerator";
 import { FingerprintService } from "@/fingerprint/fingerprint.service";
-import { Server } from "socket.io";
 import * as fs from "fs";
 import * as path from "path";
 import { Buffer } from "buffer";
@@ -204,8 +202,7 @@ export class PuppeteerService implements OnModuleDestroy {
     return null;
   }
 
-  async createBrowser(): Promise<PuppeteerInstance> {
-    //  puppeteer.use(StealthPlugin());
+  async createBrowser(siteUrl: string): Promise<PuppeteerInstance> {
     const { connect } = require("puppeteer-real-browser");
 
     const { browser, page }: { browser: Browser; page: Page } = await connect({
@@ -216,7 +213,6 @@ export class PuppeteerService implements OnModuleDestroy {
         defaultViewport: null,
       },
       turnstile: false,
-
       connectOption: {
         defaultViewport: {
           width: 1920,
@@ -231,27 +227,72 @@ export class PuppeteerService implements OnModuleDestroy {
     // ✅ 브라우저 지문 랜덤 설정
     const publicIp = await this.getPublicIp();
     const fingerprint = await generateRandomFingerprintForKorea(publicIp);
-    const uuid = await this.fingerprintService.saveFingerprint(fingerprint);
+    const uuid = await this.fingerprintService.saveFingerprint(
+      fingerprint,
+      siteUrl
+    );
     this.logger.log(`📦 브라우저 Fingerprint 저장됨: ${uuid}`);
 
-    //await applyFingerprint(page, fingerprint);
     await applyFingerprint(page, fingerprint);
-    // browser.on("targetcreated", async (target) => {
-    //   const page = await target.page();
-    //   if (page) {
-    //     console.log("새 창 생성 감지됨. 차단 시도");
-    //     await page.close();
-    //   }
-    // });
 
-    // await page.goto("https://amiunique.org/fingerprint", {
-    //   waitUntil: "domcontentloaded",
-    // });
-    await page.goto("https://www.geolocation.com", {
-      waitUntil: "domcontentloaded",
+    // ✅ 입력받은 siteUrl로 이동
+    await page.goto(siteUrl, { waitUntil: "domcontentloaded" });
+
+    await page.evaluate(() => {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+
+        if (window.indexedDB && indexedDB.databases) {
+          indexedDB.databases().then((dbs) => {
+            dbs.forEach((db) => {
+              if (db.name) indexedDB.deleteDatabase(db.name);
+            });
+          });
+        }
+
+        if (typeof caches !== "undefined" && caches.keys) {
+          caches.keys().then((keys) => {
+            keys.forEach((key) => caches.delete(key));
+          });
+        }
+      } catch (e) {
+        console.warn("스토리지 정리 중 오류:", e);
+      }
     });
 
+    // ✅ 네트워크 추적 활성화
+    await this.enableCDPNetwork(page, siteUrl);
+
     this.browsers.set(uuid, browser);
+
+    // 10초마다 저장
+    setInterval(async () => {
+      try {
+        // ✅ 반드시 유효 페이지 로드 후에만 실행
+        const url = page.url();
+        if (url.startsWith("http")) {
+          const cookies = await page.cookies();
+          const localStorage = await page.evaluate(() =>
+            JSON.stringify(window.localStorage)
+          );
+          const sessionStorage = await page.evaluate(() =>
+            JSON.stringify(window.sessionStorage)
+          );
+
+          await this.fingerprintService.updateSession(uuid, {
+            cookies,
+            localStorage,
+            sessionStorage,
+          });
+
+          this.logger.debug(`🧩 세션 저장 완료 (UUID: ${uuid})`);
+        }
+      } catch (err) {
+        this.logger.warn(`세션 저장 실패: ${err}`);
+      }
+    }, 10_000);
+
     return { browser, uuid };
   }
 
@@ -287,22 +328,37 @@ export class PuppeteerService implements OnModuleDestroy {
     // 3. applyFingerprint 적용
     await applyFingerprint(page, fingerprint);
 
-    // 4. 차단 방지: 새 창 생성 자동 종료
-    // browser.on("targetcreated", async (target) => {
-    //   const newPage = await target.page();
-    //   if (newPage) {
-    //     console.log("새 창 생성 감지됨. 차단 시도");
-    //     await newPage.close();
-    //   }
-    // });
+    if (fingerprint.cookies?.length) {
+      await page.setCookie(...fingerprint.cookies);
+      this.logger.log(`🍪 쿠키 복원 완료`);
+    }
 
-    // 5. 검증용 페이지 접속
-    await page.goto("https://amiunique.org/fingerprint", {
-      waitUntil: "domcontentloaded",
-    });
+    // 🧭 페이지 이동
+    //await page.goto(fingerprint.siteUrl, { waitUntil: "domcontentloaded" });
+    await page.goto("https://www.naver.com", { waitUntil: "domcontentloaded" });
+
+    //www.lbank.com
+    // 🧩 Storage 복원 (이제 접근 가능)
+    await page.evaluate(
+      (local, session) => {
+        try {
+          const l = JSON.parse(local || "{}");
+          for (const k in l) localStorage.setItem(k, l[k]);
+        } catch {}
+        try {
+          const s = JSON.parse(session || "{}");
+          for (const k in s) sessionStorage.setItem(k, s[k]);
+        } catch {}
+      },
+      fingerprint.localStorage,
+      fingerprint.sessionStorage
+    );
 
     this.logger.log(`♻️ Fingerprint 재적용 브라우저 실행됨 (UUID: ${uuid})`);
     this.browsers.set(uuid, browser);
+    const status = await this.getBrowserStatus("uuid");
+    console.log(status);
+    await this.enableCDPNetwork(page, fingerprint.siteUrl);
     return browser;
   }
 
@@ -365,7 +421,7 @@ export class PuppeteerService implements OnModuleDestroy {
       const url = request.url || "";
 
       if (url.includes("bitmart.com")) {
-        //   console.log(`[BITMART Request] ${url}`);
+        console.log(`[BITMART Request] ${url}`);
         this.appendRawLog("BITMART", `[Request] ${url}`);
       } else if (url.includes("lbank.com")) {
         // console.log(`[LBANK Request] ${url}`);
@@ -462,5 +518,35 @@ export class PuppeteerService implements OnModuleDestroy {
     });
 
     return cdp;
+  }
+
+  async getBrowserStatus(uuid: string): Promise<{
+    uuid: string;
+    isConnected: boolean;
+    tabs: string[];
+  } | null> {
+    const browser = this.browsers.get(uuid);
+    if (!browser) {
+      this.logger.warn(
+        `UUID ${uuid}에 해당하는 브라우저 인스턴스를 찾을 수 없습니다.`
+      );
+      return null;
+    }
+
+    const isConnected = browser.isConnected();
+    let tabs: string[] = [];
+
+    try {
+      const pages = await browser.pages();
+      tabs = await Promise.all(pages.map((p) => p.url()));
+    } catch (error) {
+      this.logger.error(
+        `탭 정보를 가져오는 중 오류 발생 (UUID: ${uuid})`,
+        error
+      );
+      tabs = ["탭 정보를 가져올 수 없음"];
+    }
+
+    return { uuid, isConnected, tabs };
   }
 }

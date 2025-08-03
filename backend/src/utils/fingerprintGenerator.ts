@@ -353,7 +353,12 @@ export async function applyFingerprint(
       success(position as GeolocationPosition);
       return watchId;
     };
+
     navigator.geolocation.getCurrentPosition = getCurrentPosition;
     navigator.geolocation.watchPosition = watchPosition;
   }, fingerprint);
+  const cookies = await page.cookies();
+  if (cookies.length) {
+    await page.deleteCookie(...cookies);
+  }
 }

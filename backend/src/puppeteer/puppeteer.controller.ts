@@ -9,7 +9,7 @@ export class PuppeteerController {
 
   @Post("launch")
   async launchBrowser(@Body("url") url: string) {
-    const browser = await this.puppeteerService.createBrowser();
+    const browser = await this.puppeteerService.createBrowser(url);
 
     const pages = await browser.browser.pages();
     const page = pages[0]; // 첫 번째 탭
