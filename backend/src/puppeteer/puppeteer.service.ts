@@ -334,10 +334,31 @@ export class PuppeteerService implements OnModuleDestroy {
     }
 
     // 🧭 페이지 이동
-    //await page.goto(fingerprint.siteUrl, { waitUntil: "domcontentloaded" });
-    await page.goto("https://www.naver.com", { waitUntil: "domcontentloaded" });
+    await page.goto(fingerprint.siteUrl, { waitUntil: "domcontentloaded" });
 
-    //www.lbank.com
+    await page.evaluate(() => {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+
+        if (window.indexedDB && indexedDB.databases) {
+          indexedDB.databases().then((dbs) => {
+            dbs.forEach((db) => {
+              if (db.name) indexedDB.deleteDatabase(db.name);
+            });
+          });
+        }
+
+        if (typeof caches !== "undefined" && caches.keys) {
+          caches.keys().then((keys) => {
+            keys.forEach((key) => caches.delete(key));
+          });
+        }
+      } catch (e) {
+        console.warn("스토리지 정리 중 오류:", e);
+      }
+    });
+
     // 🧩 Storage 복원 (이제 접근 가능)
     await page.evaluate(
       (local, session) => {
@@ -359,6 +380,33 @@ export class PuppeteerService implements OnModuleDestroy {
     const status = await this.getBrowserStatus("uuid");
     console.log(status);
     await this.enableCDPNetwork(page, fingerprint.siteUrl);
+
+    setInterval(async () => {
+      try {
+        // ✅ 반드시 유효 페이지 로드 후에만 실행
+        const url = page.url();
+        if (url.startsWith("http")) {
+          const cookies = await page.cookies();
+          const localStorage = await page.evaluate(() =>
+            JSON.stringify(window.localStorage)
+          );
+          const sessionStorage = await page.evaluate(() =>
+            JSON.stringify(window.sessionStorage)
+          );
+
+          await this.fingerprintService.updateSession(uuid, {
+            cookies,
+            localStorage,
+            sessionStorage,
+          });
+
+          this.logger.debug(`🧩 세션 저장 완료 (UUID: ${uuid})`);
+        }
+      } catch (err) {
+        this.logger.warn(`세션 저장 실패: ${err}`);
+      }
+    }, 10_000);
+
     return browser;
   }
 
