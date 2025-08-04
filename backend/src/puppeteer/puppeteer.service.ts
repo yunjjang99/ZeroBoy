@@ -48,6 +48,7 @@ export class PuppeteerService implements OnModuleDestroy {
     private readonly puppeteerGateway: PuppeteerGateway
   ) {}
 
+  private latestMessages: { [key: string]: string } = {}; // 최신 로그 메시지 저장
   private xtTickerFormatter = new XTTickerFormatter();
   private xtOderbookFormatter = new XTOrderbookFormatter();
   // 2. Lbank 포매터 인스턴스 생성
@@ -68,7 +69,7 @@ export class PuppeteerService implements OnModuleDestroy {
   private readonly browsers = new Map<string, Browser>();
 
   private getRawLogFilePath(
-    exchange: "LBANK" | "BITMART" | "ASCENDEX" | "OTHER"
+    exchange: "LBANK" | "BITMART" | "ASCENDEX" | "OTHER" | "ORANGEX" | "BYDFI"
   ): string {
     switch (exchange) {
       case "LBANK":
@@ -77,9 +78,146 @@ export class PuppeteerService implements OnModuleDestroy {
         return path.resolve(__dirname, "../../logs/BITMART/raw.txt");
       case "ASCENDEX":
         return path.resolve(__dirname, "../../logs/ASCENDEX/raw.txt");
+      case "ORANGEX":
+        return path.resolve(__dirname, "../../logs/ORANGEX/raw.txt");
+      case "BYDFI":
+        return path.resolve(__dirname, "../../logs/BYDFI/raw.txt");
       default:
         return path.resolve(__dirname, "../../logs/OTHER/raw.txt");
     }
+  }
+
+  // 각 거래소별, 메시지 타입별 로그 파일 경로 설정
+  private readonly logFilePaths: Partial<
+    Record<Exchange, Record<MarketMessageType, string>>
+  > = {
+    [Exchange.XT]: {
+      [MarketMessageType.TICKER]: path.resolve(
+        __dirname,
+        "../../logs/XT/xt_ticker.txt"
+      ),
+      [MarketMessageType.TRADE]: path.resolve(
+        __dirname,
+        "../../logs/XT/xt_trade.txt"
+      ),
+      [MarketMessageType.ORDERBOOK]: path.resolve(
+        __dirname,
+        "../../logs/XT/xt_orderbook.txt"
+      ),
+      [MarketMessageType.ORDER]: path.resolve(
+        __dirname,
+        "../../logs/XT/xt_orderbook.txt"
+      ),
+    },
+    [Exchange.LBANK]: {
+      [MarketMessageType.TICKER]: path.resolve(
+        __dirname,
+        "../../logs/LBANK/lbank_ticker.txt"
+      ),
+      [MarketMessageType.TRADE]: path.resolve(
+        __dirname,
+        "../../logs/LBANK/lbank_trade.txt"
+      ),
+      [MarketMessageType.ORDERBOOK]: path.resolve(
+        __dirname,
+        "../../logs/LBANK/lbank_orderbook.txt"
+      ),
+      [MarketMessageType.ORDER]: path.resolve(
+        __dirname,
+        "../../logs/LBANK/lbank_order.txt"
+      ),
+    },
+    [Exchange.BITMART]: {
+      [MarketMessageType.TICKER]: path.resolve(
+        __dirname,
+        "../../logs/BITMART/bitmart_ticker.txt"
+      ),
+      [MarketMessageType.TRADE]: path.resolve(
+        __dirname,
+        "../../logs/BITMART/bitmart_trade.txt"
+      ),
+      [MarketMessageType.ORDERBOOK]: path.resolve(
+        __dirname,
+        "../../logs/BITMART/bitmart_orderbook.txt"
+      ),
+      [MarketMessageType.ORDER]: path.resolve(
+        __dirname,
+        "../../logs/BITMART/bitmart_order.txt"
+      ),
+    },
+    [Exchange.ASCENDEX]: {
+      [MarketMessageType.TICKER]: path.resolve(
+        __dirname,
+        "../../logs/ASCENDEX/ascendex_ticker.txt"
+      ),
+      [MarketMessageType.TRADE]: path.resolve(
+        __dirname,
+        "../../logs/ASCENDEX/ascendex_trade.txt"
+      ),
+      [MarketMessageType.ORDERBOOK]: path.resolve(
+        __dirname,
+        "../../logs/ASCENDEX/ascendex_orderbook.txt"
+      ),
+      [MarketMessageType.ORDER]: path.resolve(
+        __dirname,
+        "../../logs/ASCENDEX/ascendex_order.txt"
+      ),
+    },
+  };
+
+  private logUnifiedMessage(message: any): void {
+    const exchange = message.exchange;
+    const messageType = message.type;
+    const filePath =
+      this.logFilePaths[exchange] && this.logFilePaths[exchange][messageType];
+    if (!filePath) {
+      console.warn(
+        `로그 파일 경로 미정의: exchange=${exchange}, type=${messageType}`
+      );
+      return;
+    }
+
+    let logMessage = "";
+    switch (messageType) {
+      case MarketMessageType.TICKER: {
+        const ticker = message as any;
+        logMessage = `[${ticker.timestamp}] ${ticker.exchange} TICKER | Symbol: ${ticker.symbol} | CurrentPrice: ${ticker.currentPrice} | LastTradePrice: ${ticker.lastTradePrice}\n`;
+        break;
+      }
+      case MarketMessageType.TRADE: {
+        const trade = message as any;
+        logMessage = `[${trade.timestamp}] ${trade.exchange} TRADE | Symbol: ${trade.symbol} | TradePrice: ${trade.tradePrice} | TradeVolume: ${trade.tradeVolume} | TradeSide: ${trade.tradeSide}\n`;
+        break;
+      }
+      case MarketMessageType.ORDERBOOK: {
+        const orderbook = message as any;
+        logMessage = `[${orderbook.timestamp}] ${orderbook.exchange} ORDERBOOK | Symbol: ${orderbook.symbol} | BestBid: ${orderbook.bestBidPrice} (${orderbook.bestBidVolume}) | BestAsk: ${orderbook.bestAskPrice} (${orderbook.bestAskVolume}) | CurrentPrice: ${orderbook.currentPrice}\n`;
+        break;
+      }
+      case MarketMessageType.ORDER: {
+        const order = message as any;
+        logMessage = `[${order.timestamp}] ${order.exchange} ORDER | Symbol: ${order.instrument} | ExecutedPrice: ${order.executedPrice} | ExecutedVolume: ${order.executedVolume} | OrderSide: ${order.orderSide} | PositionSide: ${order.positionSide}\n`;
+        break;
+      }
+
+      default:
+        console.warn(`알 수 없는 메시지 타입: ${messageType}`);
+        return;
+    }
+
+    // exchange와 messageType을 키로 하여 최신 로그 메시지를 메모리에 저장합니다.
+    const key = `${exchange}-${messageType}`;
+    this.latestMessages[key] = logMessage;
+
+    try {
+      fs.appendFileSync(filePath, logMessage, "utf8");
+    } catch (error) {
+      console.error(`로그 기록 실패 (파일: ${filePath}):`, error);
+    }
+  }
+
+  public getLatestMessages(): { [key: string]: string } {
+    return this.latestMessages;
   }
 
   private async handleFetchResponse(
@@ -119,7 +257,7 @@ export class PuppeteerService implements OnModuleDestroy {
   }
 
   private appendRawLog(
-    exchange: "LBANK" | "BITMART" | "OTHER" | "ASCENDEX",
+    exchange: "LBANK" | "BITMART" | "OTHER" | "ASCENDEX" | "ORANGEX" | "BYDFI",
     logMessage: string
   ): void {
     const filePath = this.getRawLogFilePath(exchange);
@@ -472,13 +610,19 @@ export class PuppeteerService implements OnModuleDestroy {
         console.log(`[BITMART Request] ${url}`);
         this.appendRawLog("BITMART", `[Request] ${url}`);
       } else if (url.includes("lbank.com")) {
-        // console.log(`[LBANK Request] ${url}`);
+        console.log(`[LBANK Request] ${url}`);
         this.appendRawLog("LBANK", `[Request] ${url}`);
       } else if (url.includes("ascendex.com")) {
-        //console.log(`[ASCENDEX Request] ${url}`);
+        console.log(`[ASCENDEX Request] ${url}`);
         this.appendRawLog("ASCENDEX", `[Request] ${url}`);
+      } else if (url.includes("orangex.com")) {
+        console.log(`[ORANGEX Request] ${url}`);
+        this.appendRawLog("ORANGEX", `[Request] ${url}`);
+      } else if (url.includes("bydfi.com")) {
+        console.log(`[bydfi Request] ${url}`);
+        this.appendRawLog("BYDFI", `[Request] ${url}`);
       } else {
-        // console.log(`[OTHER Request] ${url}`);
+        console.log(`[OTHER Request] ${url}`);
         this.appendRawLog("OTHER", `[Request] ${url}`);
       }
     });
@@ -488,19 +632,24 @@ export class PuppeteerService implements OnModuleDestroy {
       const { response } = params;
       const { url, status, mimeType } = response;
 
-      let exchange: "LBANK" | "BITMART" | "ASCENDEX" | "OTHER" = "OTHER";
+      let exchange:
+        | "LBANK"
+        | "BITMART"
+        | "ASCENDEX"
+        | "ORANGEX"
+        | "BYDFI"
+        | "OTHER" = "OTHER";
       if (url.includes("bitmart.com")) {
         exchange = "BITMART";
       } else if (url.includes("lbank.com")) {
         exchange = "LBANK";
       } else if (url.includes("ascendex.com")) {
         exchange = "ASCENDEX";
+      } else if (url.includes("orangex.com")) {
+        exchange = "ORANGEX";
+      } else if (url.includes("bydfi.com")) {
+        exchange = "BYDFI";
       }
-
-      // 콘솔 + 파일 로깅
-      // console.log(
-      //   `[${exchange} Response] url: ${url}, status: ${status}, mimeType: ${mimeType}`
-      // );
       this.appendRawLog(
         exchange,
         `[Response] url: ${url}, status: ${status}, mimeType: ${mimeType}`
@@ -540,6 +689,7 @@ export class PuppeteerService implements OnModuleDestroy {
       let parsed: WebSocketMessage;
       try {
         parsed = JSON.parse(rawData);
+        console.log(parsed);
       } catch {
         // console.log(`JSON 파싱 불가 데이터: ${rawData}`);
         return;
@@ -553,7 +703,6 @@ export class PuppeteerService implements OnModuleDestroy {
       const unifiedMessage = this.formatMessage(parsed, siteUrl);
       if (unifiedMessage) {
         // this.monitorAndClosePositions();
-        // this.logUnifiedMessage(unifiedMessage);
         this.puppeteerGateway.emit("socketData", unifiedMessage);
       } else {
         // console.log("포맷팅 실패 또는 처리 대상 메시지가 아님:", rawData);
