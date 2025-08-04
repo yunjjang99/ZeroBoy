@@ -1,51 +1,50 @@
-⸻
-
 🦾 ZeroBoy
 
-ZeroBoy는 암호화폐 선물거래 시장에서의 차익 거래(Arbitrage) 및 양방향 헷징 전략을 자동화하기 위한 고성능 데스크탑 애플리케이션입니다.
+ZeroBoy is a desktop application designed for automated cryptocurrency futures trading, focused on arbitrage opportunities and bidirectional hedging strategies.
+It includes built-in mechanisms to bypass centralized exchange bot detection through advanced browser fingerprint spoofing and Cloudflare bot challenge evasion.
 
 ⸻
 
-🧠 프로젝트 개요
+🧠 Overview
 
-ZeroBoy는 중앙화 거래소(CEX)의 트레이딩 감지 시스템을 회피하고, 봇 기반의 자동 매매 전략을 안전하게 수행할 수 있도록 설계된 솔루션입니다.
-Cloudflare와 같은 봇 탐지 시스템 우회, 지문 스푸핑(Fingerprint Spoofing), 그리고 양방향 포지션 관리 로직을 핵심으로 구성되어 있습니다.
-
-⸻
-
-🚀 주요 기능
-• ✅ 코인 선물 거래 자동화
-• 롱·숏 동시 진입을 통한 헷징 전략
-• 진입 타이밍 자동 포착 및 익절/손절 로직
-• 🔁 양방향 헷징 엔진
-• 롱/숏 포지션의 병렬 운영을 통한 손실 완충
-• 시장 급변에도 안정적인 수익 전략 설계
-• 🛡 브라우저 지문 위장(Fingerprint Spoofing)
-• User-Agent, GPU 정보, WebGL, Canvas 등 정밀 위조
-• Puppeteer + Stealth 환경에서 수십만 조합 무작위 생성
-• 🌐 Cloudflare 및 Bot Detection 우회
-• Stealth 플러그인 기반의 자동화 브라우징 처리
-• 보안 우회에 최적화된 네트워크 및 브라우저 설정
-• 💾 경량 데이터베이스 관리
-• SQLite 기반의 로컬 저장소로 빠른 I/O 보장
-• 포지션, 진입 내역, 브라우저 세션 정보 저장
-• 🖥 데스크탑 앱 배포
-• React + Electron 기반의 GUI 제공
-• 멀티 플랫폼 배포 (Windows, macOS 예정)
+ZeroBoy enables safe and stealthy execution of automated trading strategies on centralized exchanges (CEXs).
+It combines market-neutral techniques like hedging with deep system-level tactics to evade anti-bot systems and ensure maximum operational freedom.
 
 ⸻
 
-🧱 기술 스택
-
-영역 기술
-백엔드 NestJS
-프론트엔드 React, Electron
-자동화 엔진 Puppeteer
-데이터베이스 SQLite (로컬 DB)
+🚀 Key Features
+• ✅ Automated Crypto Futures Trading
+• Supports long/short entries with pre-configured risk/return logic
+• Automatically manages entry/exit timing and profit targets
+• 🔁 Bidirectional Hedging Engine
+• Simultaneous long & short positions for neutral exposure
+• Designed to minimize risk in volatile markets
+• 🛡 Browser Fingerprint Spoofing
+• Randomized spoofing of user agent, GPU model, WebGL, Canvas, timezone, and more
+• Thousands of unique identity combinations generated dynamically
+• 🌐 Cloudflare and Bot Protection Bypass
+• Uses Puppeteer with Stealth plugins to pass anti-bot challenges
+• Simulates real user behavior and browser characteristics
+• 💾 Lightweight Local Database
+• SQLite-based storage for fast, embedded data handling
+• Stores browser sessions, trade history, and fingerprint metadata
+• 🖥 Cross-Platform Desktop App
+• Built with React + Electron
+• Windows and macOS packaging planned
 
 ⸻
 
-🛠 시스템 구성도
+🧱 Tech Stack
+
+Layer Technology
+Backend NestJS
+Frontend React, Electron
+Automation Puppeteer, Stealth
+Database SQLite (local embedded DB)
+
+⸻
+
+🛠 Architecture
 
 ┌────────────┐ ┌────────────┐
 │ Electron │◀────▶│ React GUI │
@@ -62,27 +61,27 @@ Cloudflare와 같은 봇 탐지 시스템 우회, 지문 스푸핑(Fingerprint S
 
 ⸻
 
-🔒 보안 및 익명성 설계
-• 브라우저별 UUID 식별자를 통해 세션 관리
-• 자동 로그인 우회: 로컬 쿠키 / 세션 / 로컬스토리지 복원
-• 거래소 추적 방지를 위한 지문 조합 수십만 개 지원
-• 위치, IP, 언어 등 한국 사용자 위장 환경 기본 탑재
+🔒 Security & Stealth Mechanisms
+• UUID-based browser session identity for reliable state management
+• Seamless session persistence (cookies, localStorage, sessionStorage)
+• Multi-layered fingerprint spoofing: randomized at launch
+• Simulates Korean user environments (geolocation, language, timezone, etc.)
+• Supports IP/region masking for advanced stealth
 
 ⸻
 
-📦 배포 방식
+📦 Distribution
 
-ZeroBoy는 Electron 기반으로 데스크탑 앱 형태로 패키징되며, 별도의 웹 브라우저 없이도 바로 실행할 수 있습니다.
-• Windows .exe 및 macOS .dmg 파일로 배포 예정
-• 자동 업데이트 기능 지원 예정
-
-⸻
-
-🔧 향후 계획 (Roadmap)
-• Telegram / Discord 알림 연동
-• 다중 거래소 Arbitrage 전략 지원 (Binance, Bybit 등)
-• 분산형 Proxy 라우팅 기능
-• 실시간 Funding Rate 기반 전략 강화
-• UI 리디자인 및 다크모드 추가
+ZeroBoy is distributed as a standalone desktop application:
+• ✅ Electron-based packaging
+• ✅ Windows .exe and macOS .dmg supported
+• 🔄 Auto-updater functionality planned
 
 ⸻
+
+📌 Roadmap
+• Telegram/Discord notification integration
+• Multi-exchange arbitrage (Binance, Bybit, etc.)
+• Distributed proxy routing support
+• Real-time funding fee arbitrage logic
+• Dark mode and enhanced UI
