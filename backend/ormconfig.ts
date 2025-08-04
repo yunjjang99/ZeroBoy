@@ -14,7 +14,7 @@ const commonTypeOrmConfig: TypeOrmModuleOptions & DataSourceOptions = {
   entities: [__dirname + "/**/*.entity.{ts,js}"],
   migrations: [join(__dirname, "src/migrations/*.ts")],
   synchronize: true, // 개발 시 true (배포 시 false + migration 사용)
-  logging: true,
+  logging: false,
 };
 
 console.log("SQLite DB Path:", join(__dirname, "data", "db.sqlite"));
