@@ -23,8 +23,14 @@
   },
   "homepage": "https://github.com/yunjjang99/ZeroBoy#readme",
   "dependencies": {
+    "@tanstack/react-query": "^5.84.1",
+    "@tanstack/react-query-devtools": "^5.84.1",
+    "i18next": "^23.16.8",
+    "lightweight-charts": "^5.0.8",
+    "lucide-react": "^0.294.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-i18next": "^13.5.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

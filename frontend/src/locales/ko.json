@@ -1,0 +1,87 @@
+{
+  "common": {
+    "dashboard": "대시보드",
+    "analytics": "분석",
+    "browser": "브라우저",
+    "organization": "조직",
+    "projects": "프로젝트",
+    "transactions": "거래내역",
+    "invoices": "송장",
+    "payments": "결제",
+    "members": "멤버",
+    "permissions": "권한",
+    "chat": "채팅",
+    "meetings": "회의",
+    "settings": "설정",
+    "help": "도움말",
+    "add": "추가",
+    "send": "보내기",
+    "topUp": "충전",
+    "more": "더보기",
+    "viewAll": "전체보기",
+    "viewDetails": "상세보기",
+    "user": "사용자"
+  },
+  "dashboard": {
+    "title": "ZeroBoy - 암호화폐 거래 봇",
+    "subtitle": "암호화폐 거래 봇 데스크톱 애플리케이션",
+    "accounts": {
+      "title": "계정",
+      "totalBalance": "총 잔액",
+      "yourAccounts": "내 계정",
+      "mainSavings": "주 저축",
+      "mainSavingsDesc": "개인 저축",
+      "checkingAccount": "입출금 계좌",
+      "checkingAccountDesc": "일상 지출",
+      "investmentPortfolio": "투자 포트폴리오",
+      "investmentPortfolioDesc": "주식 및 ETF",
+      "creditCard": "신용카드",
+      "creditCardDesc": "미결제 금액",
+      "savingsAccount": "저축 계좌",
+      "savingsAccountDesc": "비상 자금"
+    },
+    "transactions": {
+      "title": "최근 거래",
+      "subtitle": "최근 활동 (23건 거래)",
+      "thisMonth": "이번 달",
+      "appleStorePurchase": "애플 스토어 구매",
+      "salaryDeposit": "급여 입금",
+      "netflixSubscription": "넷플릭스 구독",
+      "supabaseSubscription": "Supabase 구독",
+      "vercelSubscription": "Vercel 구독",
+      "viewAllTransactions": "전체 거래 보기"
+    },
+    "events": {
+      "title": "예정된 이벤트",
+      "emergencyFund": "비상 자금",
+      "emergencyFundDesc": "3개월 생활비 저축",
+      "stockPortfolio": "주식 포트폴리오",
+      "stockPortfolioDesc": "기술 섹터 투자 계획",
+      "debtRepayment": "부채 상환",
+      "debtRepaymentDesc": "학자금 대출 상환 계획",
+      "progress": "진행률",
+      "target": "목표",
+      "inProgress": "진행 중",
+      "pending": "대기 중"
+    },
+    "system": {
+      "title": "시스템 정보",
+      "platform": "플랫폼",
+      "nodeVersion": "Node.js 버전",
+      "chromiumVersion": "Chromium 버전",
+      "electronVersion": "Electron 버전"
+    },
+    "chart": {
+      "title": "비트코인 차트",
+      "subtitle": "실시간 BTC/USD 가격 차트",
+      "currentPrice": "현재 가격",
+      "change24h": "24시간 변동",
+      "high24h": "24시간 고가",
+      "low24h": "24시간 저가",
+      "timeframe1h": "1시간",
+      "timeframe4h": "4시간",
+      "timeframe1d": "1일",
+      "timeframe1w": "1주"
+    }
+  }
+} 

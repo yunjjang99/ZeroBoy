@@ -9,6 +9,9 @@
   
   body {
     @apply font-sans antialiased overflow-x-hidden;
+    /* 기본 드래그 비활성화 */
+    -webkit-app-region: no-drag;
+    user-select: none;
   }
   
   code {
@@ -17,6 +20,16 @@
 }
 
 @layer components {
+  /* 드래그 가능한 영역 */
+  .drag-region {
+    -webkit-app-region: drag;
+  }
+  
+  /* 드래그 불가능한 영역 (버튼, 입력 필드 등) */
+  .no-drag {
+    -webkit-app-region: no-drag;
+  }
+  
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     @apply w-2;

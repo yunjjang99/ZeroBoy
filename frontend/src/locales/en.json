@@ -1,0 +1,93 @@
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "browser": "Browser",
+    "analytics": "Analytics",
+    "organization": "Organization",
+    "projects": "Projects",
+    "transactions": "Transactions",
+    "invoices": "Invoices",
+    "payments": "Payments",
+    "members": "Members",
+    "permissions": "Permissions",
+    "chat": "Chat",
+    "meetings": "Meetings",
+    "settings": "Settings",
+    "help": "Help",
+    "add": "Add",
+    "send": "Send",
+    "topUp": "Top-up",
+    "more": "More",
+    "create": "Create",
+    "reopen": "Reopen",
+    "delete": "Delete",
+    "save": "Save",
+    "update": "Update",
+    "cancel": "Cancel",
+    "viewAll": "View All",
+    "viewDetails": "View Details",
+    "user": "User"
+  },
+  "dashboard": {
+    "title": "ZeroBoy - Crypto Trading Bot",
+    "subtitle": "Crypto Trading Bot Desktop Application",
+    "accounts": {
+      "title": "Accounts",
+      "totalBalance": "Total Balance",
+      "yourAccounts": "Your Accounts",
+      "mainSavings": "Main Savings",
+      "mainSavingsDesc": "Personal savings",
+      "checkingAccount": "Checking Account",
+      "checkingAccountDesc": "Daily expenses",
+      "investmentPortfolio": "Investment Portfolio",
+      "investmentPortfolioDesc": "Stock & ETFs",
+      "creditCard": "Credit Card",
+      "creditCardDesc": "Pending charges",
+      "savingsAccount": "Savings Account",
+      "savingsAccountDesc": "Emergency fund"
+    },
+    "transactions": {
+      "title": "Recent Transactions",
+      "subtitle": "Recent Activity (23 transactions)",
+      "thisMonth": "This Month",
+      "appleStorePurchase": "Apple Store Purchase",
+      "salaryDeposit": "Salary Deposit",
+      "netflixSubscription": "Netflix Subscription",
+      "supabaseSubscription": "Supabase Subscription",
+      "vercelSubscription": "Vercel Subscription",
+      "viewAllTransactions": "View All Transactions"
+    },
+    "events": {
+      "title": "Upcoming Events",
+      "emergencyFund": "Emergency Fund",
+      "emergencyFundDesc": "3 months of expenses saved",
+      "stockPortfolio": "Stock Portfolio",
+      "stockPortfolioDesc": "Tech sector investment plan",
+      "debtRepayment": "Debt Repayment",
+      "debtRepaymentDesc": "Student loan payoff plan",
+      "progress": "Progress",
+      "target": "Target",
+      "inProgress": "In-progress",
+      "pending": "Pending"
+    },
+    "system": {
+      "title": "System Information",
+      "platform": "Platform",
+      "nodeVersion": "Node.js Version",
+      "chromiumVersion": "Chromium Version",
+      "electronVersion": "Electron Version"
+    },
+    "chart": {
+      "title": "Bitcoin Chart",
+      "subtitle": "Real-time BTC/USD price chart",
+      "currentPrice": "Current Price",
+      "change24h": "24h Change",
+      "high24h": "24h High",
+      "low24h": "24h Low",
+      "timeframe1h": "1H",
+      "timeframe4h": "4H",
+      "timeframe1d": "1D",
+      "timeframe1w": "1W"
+    }
+  }
+} 
