@@ -24,62 +24,102 @@ function startBackendServer(): Promise<void> {
       ? path.join(__dirname, "../../backend/dist/src/main.js")
       : path.join((process as any).resourcesPath, "backend/dist/src/main.js");
 
+    console.log(`🔍 Debug Info:`);
+    console.log(`   - isDev: ${isDev}`);
+    console.log(`   - app.isPackaged: ${app.isPackaged}`);
+    console.log(`   - backendPath: ${backendPath}`);
+    console.log(`   - resourcesPath: ${(process as any).resourcesPath}`);
+
     // 백엔드 빌드 파일이 있는지 확인
     if (!fs.existsSync(backendPath)) {
+      console.error(`❌ Backend build not found at: ${backendPath}`);
       reject(new Error(`Backend build not found at: ${backendPath}`));
       return;
     }
 
+    console.log(`✅ Backend build found at: ${backendPath}`);
+
     // 백엔드 서버 시작
-    const nodePath = process.execPath; // 현재 실행 중인 Node.js 경로 사용
+    const nodePath = process.platform === "win32" ? "node.exe" : "node"; // 시스템 Node.js 사용
     const backendDir = path.dirname(backendPath);
     const nodeModulesPath = path.join(path.dirname(backendDir), "node_modules");
 
-    console.log(`Starting backend server with path: ${backendPath}`);
-    console.log(`Backend directory: ${backendDir}`);
-    console.log(`Backend directory: ${backendDir}`);
+    console.log(`🚀 Starting backend server:`);
+    console.log(`   - nodePath: ${nodePath}`);
+    console.log(`   - backendDir: ${backendDir}`);
+    console.log(`   - nodeModulesPath: ${nodeModulesPath}`);
+
+    // 환경 변수 설정
+    const env = {
+      ...process.env,
+      NODE_ENV: "production",
+      PORT: "7778", // 다른 포트 사용
+      BACKEND_PORT: "7778", // 백엔드 포트도 설정
+      ELECTRON_IS_DEV: "false",
+      // SQLite 데이터베이스 경로 설정
+      DB_PATH: path.join(backendDir, "data/db.sqlite"),
+    };
+
+    console.log(`🔧 Environment variables:`, env);
 
     backendProcess = spawn(nodePath, [backendPath], {
       stdio: "pipe",
       cwd: backendDir, // 백엔드 디렉토리를 작업 디렉토리로 설정
-      env: {
-        ...process.env,
-        NODE_ENV: "production",
-        PORT: "7777",
-        ELECTRON_IS_DEV: "false",
-      },
+      env: env,
       // 프로세스 그룹 설정으로 자식 프로세스들이 함께 종료되도록 함
       detached: false,
     });
 
     backendProcess.stdout?.on("data", (data) => {
-      console.log(`Backend: ${data}`);
+      console.log(`📡 Backend stdout: ${data}`);
       if (data.toString().includes("Application is running on")) {
+        console.log(`✅ Backend server started successfully`);
         resolve();
+      } else if (
+        data.toString().includes("Another instance is already running")
+      ) {
+        console.log(
+          `⚠️ Backend server already running, checking connection...`
+        );
+        // 백엔드가 이미 실행 중이면 연결 확인
+        setTimeout(() => {
+          console.log(`✅ Backend server is already running and accessible`);
+          resolve();
+        }, 2000);
       }
     });
 
     backendProcess.stderr?.on("data", (data) => {
-      console.error(`Backend Error: ${data}`);
+      console.error(`❌ Backend stderr: ${data}`);
     });
 
     backendProcess.on("error", (error) => {
-      console.error("Failed to start backend:", error);
+      console.error("❌ Failed to start backend:", error);
       reject(error);
     });
 
     backendProcess.on("exit", (code) => {
-      console.log(`Backend process exited with code ${code}`);
+      console.log(`🔄 Backend process exited with code ${code}`);
+      if (code === 0) {
+        // 정상 종료인 경우 (이미 실행 중)
+        console.log(`✅ Backend server is already running`);
+        resolve();
+      } else {
+        console.error(`❌ Backend process exited with error code: ${code}`);
+        reject(new Error(`Backend process exited with code ${code}`));
+      }
     });
 
-    // 10초 타임아웃
+    // 15초 타임아웃 (더 긴 시간으로 증가)
     setTimeout(() => {
       if (backendProcess && !backendProcess.killed) {
+        console.log(`⏰ Backend startup timeout, but process is running`);
         resolve(); // 타임아웃이지만 백엔드가 실행 중이면 성공으로 처리
       } else {
+        console.error(`❌ Backend startup timeout and process is not running`);
         reject(new Error("Backend startup timeout"));
       }
-    }, 10000);
+    }, 15000);
   });
 }
 
@@ -120,6 +160,13 @@ function stopBackendServer() {
 }
 
 function createWindow() {
+  // 기존 윈도우가 있으면 정리
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.close();
+  }
+
+  console.log(`🪟 Creating main window...`);
+
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -130,21 +177,61 @@ function createWindow() {
     },
   });
 
+  // 윈도우가 닫힐 때 mainWindow 참조 정리
+  mainWindow.on("closed", () => {
+    console.log(`🪟 Main window closed`);
+    mainWindow = null;
+  });
+
+  // 페이지 로딩 시작
+  mainWindow.webContents.on("did-start-loading", () => {
+    console.log(`📄 Page loading started`);
+  });
+
+  // 페이지 로딩 완료
+  mainWindow.webContents.on("did-finish-load", () => {
+    console.log(`✅ Page loading finished`);
+  });
+
+  // 페이지 로딩 실패
+  mainWindow.webContents.on(
+    "did-fail-load",
+    (event, errorCode, errorDescription, validatedURL) => {
+      console.error(`❌ Page loading failed:`, {
+        errorCode,
+        errorDescription,
+        validatedURL,
+      });
+    }
+  );
+
   // dev 서버에서 열기 (vite dev)
   if (process.env.VITE_DEV_SERVER_URL) {
+    console.log(
+      `🔗 Loading from dev server: ${process.env.VITE_DEV_SERVER_URL}`
+    );
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+    const indexPath = path.join(__dirname, "../dist/index.html");
+    console.log(`📁 Loading from file: ${indexPath}`);
+    console.log(`📁 File exists: ${fs.existsSync(indexPath)}`);
+
+    // HashRouter 사용으로 loadFile 사용
+    mainWindow.loadFile(indexPath);
+
+    // 프로덕션에서도 DevTools 열기 (디버깅용)
+    mainWindow.webContents.openDevTools();
   }
 
-  // 개발 모드가 아닐 때만 DevTools 숨기기
-  // 개발 모드가 아닐 때 DevTools를 비활성화
-  if (!process.env.VITE_DEV_SERVER_URL) {
-    mainWindow?.webContents.on("devtools-opened", () => {
-      mainWindow?.webContents.closeDevTools();
-    });
-  }
+  // 개발 모드가 아닐 때만 DevTools 숨기기 - 일시적으로 주석 처리
+  // if (!process.env.VITE_DEV_SERVER_URL) {
+  //   mainWindow?.webContents.on("devtools-opened", () => {
+  //     if (mainWindow && !mainWindow.isDestroyed()) {
+  //       mainWindow.webContents.closeDevTools();
+  //     }
+  //   });
+  // }
 }
 
 app.whenReady().then(async () => {
@@ -161,13 +248,18 @@ app.whenReady().then(async () => {
   }
 
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    } else if (mainWindow && !mainWindow.isDestroyed()) {
+      // 기존 창이 있으면 포커스
+      mainWindow.focus();
+    }
   });
 });
 
 // 두 번째 인스턴스 실행 시 기존 창 포커스
 app.on("second-instance", () => {
-  if (mainWindow) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
     // 기존 창이 최소화되어 있으면 복원
     if (mainWindow.isMinimized()) {
       mainWindow.restore();
@@ -176,6 +268,9 @@ app.on("second-instance", () => {
     mainWindow.focus();
     // macOS에서 Dock 아이콘 클릭 시 창 표시
     mainWindow.show();
+  } else {
+    // mainWindow가 없거나 파괴된 경우 새로 생성
+    createWindow();
   }
 });
 

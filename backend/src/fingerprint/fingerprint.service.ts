@@ -13,14 +13,26 @@ export class FingerprintService {
 
   async saveFingerprint(
     fingerprint: Partial<BrowserFingerprint>,
-    siteUrl: string
+    siteUrl: string,
+    accountInfo?: { accountId: string; memo: string },
+    exchange?: string
   ): Promise<string> {
     const uuid = uuidv4();
+    
+    // 디버깅: accountInfo 로그
+    console.log('🔍 saveFingerprint - accountInfo:', JSON.stringify(accountInfo, null, 2));
+    console.log('🔍 saveFingerprint - exchange:', exchange);
+    
     const record = this.fingerprintRepo.create({
       uuid,
       ...fingerprint,
       siteUrl,
+      accountInfo,
+      exchange,
     });
+    
+    console.log('🔍 saveFingerprint - record.accountInfo:', JSON.stringify(record.accountInfo, null, 2));
+    
     await this.fingerprintRepo.save(record);
     return uuid;
   }

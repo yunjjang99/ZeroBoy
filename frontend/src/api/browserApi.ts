@@ -9,15 +9,14 @@ import type {
   SaveFingerprintRequest,
   UpdateSessionRequest,
 } from "../types/api";
-
-const API_BASE_URL = "http://localhost:7777";
+import { createApiUrl } from "@/config/api";
 
 // 공통 API 호출 함수
 async function apiCall<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(createApiUrl(endpoint), {
     headers: {
       "Content-Type": "application/json",
       ...options.headers,

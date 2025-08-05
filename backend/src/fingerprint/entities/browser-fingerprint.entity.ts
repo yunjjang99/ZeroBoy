@@ -68,6 +68,12 @@ export class BrowserFingerprint {
   @Column({ nullable: true })
   browserProcessId?: string;
 
+  @Column("json", { nullable: true })
+  accountInfo?: { accountId: string; memo: string };
+
+  @Column({ nullable: true })
+  exchange?: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }

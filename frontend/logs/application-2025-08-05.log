@@ -14,3 +14,56 @@
 {"level":"info","message":"ConfigHostModule dependencies initialized","timestamp":"2025-08-05T02:29:00.040Z"}
 {"level":"info","message":"ConfigModule dependencies initialized","timestamp":"2025-08-05T02:29:00.040Z"}
 {"level":"info","message":"TypeOrmCoreModule dependencies initialized","timestamp":"2025-08-05T02:29:00.055Z"}
+{"level":"info","message":"Starting Nest application...","timestamp":"2025-08-05T09:51:14.552Z"}
+{"level":"info","message":"TypeOrmModule dependencies initialized","timestamp":"2025-08-05T09:51:14.567Z"}
+{"level":"info","message":"PassportModule dependencies initialized","timestamp":"2025-08-05T09:51:14.567Z"}
+{"level":"info","message":"JwtModule dependencies initialized","timestamp":"2025-08-05T09:51:14.567Z"}
+{"level":"info","message":"AppModule dependencies initialized","timestamp":"2025-08-05T09:51:14.567Z"}
+{"level":"info","message":"ConfigHostModule dependencies initialized","timestamp":"2025-08-05T09:51:14.567Z"}
+{"level":"info","message":"ConfigModule dependencies initialized","timestamp":"2025-08-05T09:51:14.567Z"}
+{"level":"info","message":"TypeOrmCoreModule dependencies initialized","timestamp":"2025-08-05T09:51:14.598Z"}
+{"level":"info","message":"TypeOrmModule dependencies initialized","timestamp":"2025-08-05T09:51:14.598Z"}
+{"level":"info","message":"TypeOrmModule dependencies initialized","timestamp":"2025-08-05T09:51:14.598Z"}
+{"level":"info","message":"TypeOrmModule dependencies initialized","timestamp":"2025-08-05T09:51:14.599Z"}
+{"level":"info","message":"FingerprintModule dependencies initialized","timestamp":"2025-08-05T09:51:14.599Z"}
+{"level":"info","message":"PuppeteerModule dependencies initialized","timestamp":"2025-08-05T09:51:14.599Z"}
+{"level":"info","message":"AuthModule dependencies initialized","timestamp":"2025-08-05T09:51:14.600Z"}
+{"level":"info","message":"UserModule dependencies initialized","timestamp":"2025-08-05T09:51:14.600Z"}
+{"level":"info","message":"TradingModule dependencies initialized","timestamp":"2025-08-05T09:51:14.600Z"}
+{"level":"info","message":"AuthController {/auth}:","timestamp":"2025-08-05T09:51:14.606Z"}
+{"level":"info","message":"Mapped {/auth/login, POST} route","timestamp":"2025-08-05T09:51:14.607Z"}
+{"level":"info","message":"UserController {/user}:","timestamp":"2025-08-05T09:51:14.607Z"}
+{"level":"info","message":"Mapped {/user/profile, GET} route","timestamp":"2025-08-05T09:51:14.607Z"}
+{"level":"info","message":"Mapped {/user/signup, POST} route","timestamp":"2025-08-05T09:51:14.608Z"}
+{"level":"info","message":"PuppeteerController {/puppeteer}:","timestamp":"2025-08-05T09:51:14.608Z"}
+{"level":"info","message":"Mapped {/puppeteer/launch, POST} route","timestamp":"2025-08-05T09:51:14.608Z"}
+{"level":"info","message":"Mapped {/puppeteer/reopen, POST} route","timestamp":"2025-08-05T09:51:14.608Z"}
+{"level":"info","message":"Mapped {/puppeteer/status, GET} route","timestamp":"2025-08-05T09:51:14.608Z"}
+{"level":"info","message":"Mapped {/puppeteer/active-browsers, GET} route","timestamp":"2025-08-05T09:51:14.609Z"}
+{"level":"info","message":"FingerprintController {/fingerprint}:","timestamp":"2025-08-05T09:51:14.609Z"}
+{"level":"info","message":"Mapped {/fingerprint/profiles, GET} route","timestamp":"2025-08-05T09:51:14.609Z"}
+{"level":"info","message":"Mapped {/fingerprint/profiles/:uuid, GET} route","timestamp":"2025-08-05T09:51:14.609Z"}
+{"level":"info","message":"Mapped {/fingerprint/profiles, POST} route","timestamp":"2025-08-05T09:51:14.609Z"}
+{"level":"info","message":"Mapped {/fingerprint/profiles/:uuid/session, PUT} route","timestamp":"2025-08-05T09:51:14.609Z"}
+{"level":"info","message":"Mapped {/fingerprint/profiles/:uuid, DELETE} route","timestamp":"2025-08-05T09:51:14.609Z"}
+{"level":"info","message":"Mapped {/fingerprint/dummy-data, POST} route","timestamp":"2025-08-05T09:51:14.609Z"}
+{"level":"info","message":"TradingController {/trading}:","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs, POST} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs, GET} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs/with-browser-profiles, GET} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs/recover, POST} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs/with-browsers, POST} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs/:id, GET} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs/:id, PUT} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs/:id, DELETE} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs/:id/activate, POST} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs/:id/deactivate, POST} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/coins, POST} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs/:pairId/coins, GET} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/coins/:id, PUT} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/coins/:id, DELETE} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/coins/:id/price, PUT} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Mapped {/trading/pairs/auto-recover, POST} route","timestamp":"2025-08-05T09:51:14.610Z"}
+{"level":"info","message":"Nest application successfully started","timestamp":"2025-08-05T09:51:14.611Z"}
+{"level":"info","message":"모듈 종료, 브라우저 모두 종료","timestamp":"2025-08-05T09:52:02.447Z"}
+{"level":"info","message":"모든 브라우저 종료 완료","timestamp":"2025-08-05T09:52:02.449Z"}

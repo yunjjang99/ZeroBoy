@@ -2,14 +2,17 @@ import React from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Play, Settings, Trash2, TrendingUp, TrendingDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
+import { StatusBadge, type StatusType } from '@/components/common/StatusBadge'
+import { ExchangeLogo } from '@/components/common/ExchangeLogo'
+import { PnlDisplay } from '@/components/common/PnlDisplay'
+import { Exchange } from '@/hooks/useTradingQueries'
 
 // 데이터 타입 정의
 export interface Position {
-    exchange: string
+    exchange: Exchange
     entryPrice: number
     markPrice: number
     quantity: number
@@ -20,19 +23,9 @@ export interface Position {
 export interface HedgingPair {
     id: string
     symbol: string
-    status: "실행중" | "대기중" | "오류" | "Running" | "Waiting" | "Error"
+    status: StatusType
     longPosition?: Position
     shortPosition?: Position
-}
-
-// 상태별 스타일
-const statusStyles = {
-    실행중: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-600",
-    대기중: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600",
-    오류: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-600",
-    Running: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-600",
-    Waiting: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-600",
-    Error: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-600",
 }
 
 // 포지션 정보를 표시하는 작은 컴포넌트
@@ -62,11 +55,7 @@ const PositionCell = ({
         <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-gradient-to-br from-slate-500 to-slate-600 dark:from-slate-400 dark:to-slate-500 rounded-md flex items-center justify-center">
-                        <span className="text-white font-bold text-xs">
-                            {exchangeInfo.name.charAt(0)}
-                        </span>
-                    </div>
+                    <ExchangeLogo name={exchangeInfo.name} size="sm" className="bg-gradient-to-br from-slate-500 to-slate-600 dark:from-slate-400 dark:to-slate-500" />
                     <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{exchangeInfo.name}</span>
                 </div>
                 <div className={cn("px-2 py-1 rounded text-xs font-bold", type === "LONG" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300")}>
@@ -94,9 +83,7 @@ const PositionCell = ({
                 </div>
                 <div className="flex justify-between items-center">
                     <span className="text-slate-600 dark:text-slate-400 font-medium">{t('trading.position.unrealizedPnl')}:</span>
-                    <span className={cn("font-mono font-bold text-lg", pnlColor)}>
-                        {position.unrealizedPnl >= 0 ? "+" : ""}{position.unrealizedPnl.toFixed(2)}
-                    </span>
+                    <PnlDisplay value={position.unrealizedPnl} size="lg" />
                 </div>
             </div>
         </div>
@@ -106,7 +93,7 @@ const PositionCell = ({
 // 메인 리스트 컴포넌트
 export const HedgingPairList: React.FC<{
     pairs: HedgingPair[]
-    exchanges: { [key: string]: { name: string; logo: string } }
+    exchanges: { [key in Exchange]: { name: string; logo: string } }
     onDelete?: (pairId: string) => void
     onLaunchBrowser?: (pairId: string) => void
 }> = ({ pairs, exchanges, onDelete, onLaunchBrowser }) => {
@@ -134,9 +121,7 @@ export const HedgingPairList: React.FC<{
                             <TableRow key={pair.id} className="border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                 <TableCell className="font-bold text-lg text-slate-900 dark:text-slate-100">{pair.symbol}</TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" className={cn("text-xs font-semibold", statusStyles[pair.status])}>
-                                        {pair.status}
-                                    </Badge>
+                                    <StatusBadge status={pair.status} />
                                 </TableCell>
                                 <TableCell>
                                     {pair.longPosition ? (
@@ -164,8 +149,8 @@ export const HedgingPairList: React.FC<{
                                         </div>
                                     )}
                                 </TableCell>
-                                <TableCell className={cn("text-right font-mono font-bold text-lg", totalPnlColor)}>
-                                    {totalPnl >= 0 ? "+" : ""}{totalPnl.toFixed(2)}
+                                <TableCell className="text-right">
+                                    <PnlDisplay value={totalPnl} size="lg" />
                                 </TableCell>
                                 <TableCell className="text-center">
                                     <div className="flex items-center justify-center gap-2">

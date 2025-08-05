@@ -105,6 +105,16 @@
       "loginStatus": "Login Status",
       "networkStatus": "Network Status"
     },
+    "accountInfo": {
+      "title": "Create New Hedging Pair",
+      "description": "Enter account information for each exchange to create browsers.",
+      "accountId": "Account ID",
+      "accountIdPlaceholder": "e.g., user123, trading_account",
+      "memo": "Memo",
+      "memoPlaceholder": "e.g., Main account, Hedging account",
+      "confirm": "Create Browsers",
+      "required": "Please fill in all fields."
+    },
     "hedgingPairs": {
       "title": "Hedging Pairs",
       "total": "Total {{count}}",

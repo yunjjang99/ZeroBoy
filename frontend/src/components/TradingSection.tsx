@@ -3,6 +3,7 @@ import { HedgingPairList, type HedgingPair } from './HedgingPairList'
 import { ExchangePairSelector } from './ExchangePairSelector'
 import { CreatePairForm } from './CreatePairForm'
 import { useTranslation } from 'react-i18next'
+import { Exchange } from '@/hooks/useTradingQueries'
 
 interface ExchangeInfo {
   name: string
@@ -12,19 +13,17 @@ interface ExchangeInfo {
 const TradingSection: React.FC = () => {
   const { t } = useTranslation()
 
-  // 거래소 정보
-  const availableExchanges: { [key: string]: ExchangeInfo } = {
-    orangeX: { name: 'OrangeX', logo: '/exchanges/orangex.png' },
-    bydfi: { name: 'Bydfi', logo: '/exchanges/bydfi.png' },
-    binance: { name: 'Binance', logo: '/exchanges/binance.png' },
-    bybit: { name: 'Bybit', logo: '/exchanges/bybit.png' },
-    bingx: { name: 'BingX', logo: '/exchanges/bingx.png' },
+  // 거래소 정보 (Exchange enum 기반)
+  const availableExchanges: { [key in Exchange]: ExchangeInfo } = {
+    [Exchange.ORANGEX]: { name: 'OrangeX', logo: '/exchanges/orangex.png' },
+    [Exchange.BYDFI]: { name: 'Bydfi', logo: '/exchanges/bydfi.png' },
+    [Exchange.BINANCE]: { name: 'Binance', logo: '/exchanges/binance.png' },
   }
 
   // 현재 활성 거래소 페어
   const [activePair, setActivePair] = useState({
-    keyA: 'orangeX',
-    keyB: 'bydfi'
+    keyA: Exchange.ORANGEX,
+    keyB: Exchange.BYDFI
   })
 
   // 헷징 페어 데이터 (실제로는 API에서 받아옴)
@@ -34,7 +33,7 @@ const TradingSection: React.FC = () => {
       symbol: 'BTC/USDT',
       status: 'Running',
       longPosition: {
-        exchange: 'orangeX',
+        exchange: Exchange.ORANGEX,
         entryPrice: 68500.5,
         markPrice: 68750.2,
         quantity: 0.5,
@@ -42,7 +41,7 @@ const TradingSection: React.FC = () => {
         unrealizedPnl: 124.85
       },
       shortPosition: {
-        exchange: 'bydfi',
+        exchange: Exchange.BYDFI,
         entryPrice: 68510.0,
         markPrice: 68755.5,
         quantity: 0.5,
@@ -55,7 +54,7 @@ const TradingSection: React.FC = () => {
       symbol: 'ETH/USDT',
       status: 'Running',
       longPosition: {
-        exchange: 'bydfi',
+        exchange: Exchange.BYDFI,
         entryPrice: 3450.0,
         markPrice: 3480.5,
         quantity: 10,
@@ -63,7 +62,7 @@ const TradingSection: React.FC = () => {
         unrealizedPnl: 305.0
       },
       shortPosition: {
-        exchange: 'orangeX',
+        exchange: Exchange.ORANGEX,
         entryPrice: 3451.2,
         markPrice: 3481.0,
         quantity: 10,
@@ -81,7 +80,7 @@ const TradingSection: React.FC = () => {
       symbol: 'XRP/USDT',
       status: 'Error',
       longPosition: {
-        exchange: 'orangeX',
+        exchange: Exchange.ORANGEX,
         entryPrice: 0.52,
         markPrice: 0.51,
         quantity: 10000,
@@ -89,7 +88,7 @@ const TradingSection: React.FC = () => {
         unrealizedPnl: -100.0
       },
       shortPosition: {
-        exchange: 'bydfi',
+        exchange: Exchange.BYDFI,
         entryPrice: 0.52,
         markPrice: 0.51,
         quantity: 10000,
@@ -99,9 +98,8 @@ const TradingSection: React.FC = () => {
     }
   ])
 
-  const handleSavePair = (newKeys: { keyA: string; keyB: string }) => {
+  const handleSavePair = (newKeys: { keyA: Exchange; keyB: Exchange }) => {
     setActivePair(newKeys)
-    // 실제로는 API 호출하여 거래소 페어 설정
   }
 
   const handleCreatePair = () => {

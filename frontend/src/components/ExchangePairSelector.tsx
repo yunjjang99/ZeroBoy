@@ -13,16 +13,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { Settings, ArrowLeftRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Exchange } from '@/hooks/useTradingQueries'
 
-interface Exchange {
+interface ExchangeInfo {
   name: string
   logo: string
 }
 
 interface ExchangePairSelectorProps {
-  availableExchanges: { [key: string]: Exchange }
-  activeKeys: { keyA: string; keyB: string }
-  onSave: (newKeys: { keyA: string; keyB: string }) => void
+  availableExchanges: { [key in Exchange]: ExchangeInfo }
+  activeKeys: { keyA: Exchange; keyB: Exchange }
+  onSave: (newKeys: { keyA: Exchange; keyB: Exchange }) => void
 }
 
 export function ExchangePairSelector({
@@ -40,7 +41,7 @@ export function ExchangePairSelector({
   }
 
   const exchangeOptions = Object.entries(availableExchanges).map(([key, { name }]) => ({
-    value: key,
+    value: key as Exchange,
     label: name,
   }))
 
@@ -80,7 +81,7 @@ export function ExchangePairSelector({
               </Label>
               <Select
                 value={selectedKeys.keyA}
-                onValueChange={(value: string) => setSelectedKeys((prev) => ({ ...prev, keyA: value }))}
+                onValueChange={(value: Exchange) => setSelectedKeys((prev) => ({ ...prev, keyA: value }))}
               >
                 <SelectTrigger id="exchange-a" className="border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                   <SelectValue placeholder={t('trading.pairSelector.selectExchange')} />
@@ -100,7 +101,7 @@ export function ExchangePairSelector({
               </Label>
               <Select
                 value={selectedKeys.keyB}
-                onValueChange={(value: string) => setSelectedKeys((prev) => ({ ...prev, keyB: value }))}
+                onValueChange={(value: Exchange) => setSelectedKeys((prev) => ({ ...prev, keyB: value }))}
               >
                 <SelectTrigger id="exchange-b" className="border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                   <SelectValue placeholder={t('trading.pairSelector.selectExchange')} />

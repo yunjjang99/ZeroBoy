@@ -12,6 +12,7 @@ import { APP_INTERCEPTOR } from "@nestjs/core";
 import { LoggingInterceptor } from "./common/interceptor/logging.interceptor";
 import { PuppeteerModule } from "./puppeteer/puppeteer.module";
 import { FingerprintModule } from "./fingerprint/fingerprint.module";
+import { TradingModule } from "./trading/trading.module";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { FingerprintModule } from "./fingerprint/fingerprint.module";
     UserModule,
     PuppeteerModule,
     FingerprintModule,
+    TradingModule,
   ],
   providers: [
     AppLogger,

@@ -43,16 +43,16 @@ const UrlInputModal: React.FC<UrlInputModalProps> = ({
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4">
-            <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg p-4 sm:p-6 shadow-xl w-full max-w-sm sm:max-w-md animate-in fade-in-0 zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl p-4 sm:p-6 shadow-2xl w-full max-w-sm sm:max-w-md animate-in fade-in-0 zoom-in-95 duration-200 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-3 sm:mb-4">
-                    <h2 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+                    <h2 className="text-base sm:text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
                         <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
                         <span className="truncate">{title}</span>
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors flex-shrink-0"
+                        className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors flex-shrink-0"
                     >
                         <X className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
@@ -69,7 +69,7 @@ const UrlInputModal: React.FC<UrlInputModalProps> = ({
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                             placeholder={placeholder}
-                            className="w-full px-2 py-2 sm:px-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm sm:text-base"
+                            className="w-full px-2 py-2 sm:px-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm sm:text-base"
                             autoFocus
                             required
                         />
@@ -86,7 +86,7 @@ const UrlInputModal: React.FC<UrlInputModalProps> = ({
                         <button
                             type="submit"
                             disabled={!url.trim()}
-                            className="px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
+                            className="px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-blue-400 dark:disabled:bg-blue-600 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                         >
                             생성
                         </button>

@@ -99,6 +99,16 @@
       "loginStatus": "로그인 상태",
       "networkStatus": "네트워크 상태"
     },
+    "accountInfo": {
+      "title": "새 헷징 페어 생성",
+      "description": "각 거래소의 계정 정보를 입력하여 브라우저를 생성합니다.",
+      "accountId": "계정 ID",
+      "accountIdPlaceholder": "예: user123, trading_account",
+      "memo": "메모",
+      "memoPlaceholder": "예: 메인 계정, 헷징용 계정",
+      "confirm": "브라우저 생성",
+      "required": "모든 필드를 입력해주세요."
+    },
     "hedgingPairs": {
       "title": "헷징 페어",
       "total": "총 {{count}}개",

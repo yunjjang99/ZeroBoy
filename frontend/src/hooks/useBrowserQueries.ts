@@ -1,164 +1,184 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { puppeteerApi, fingerprintApi } from "../api/browserApi";
-import type {
-  LaunchBrowserRequest,
-  ReopenBrowserRequest,
-  SaveFingerprintRequest,
-  UpdateSessionRequest,
-} from "../types/api";
+import { API_CONFIG, createApiUrl } from "@/config/api";
+import { Exchange } from "./useTradingQueries";
+
+// 새로운 타입 정의
+interface BrowserProfile {
+  uuid: string;
+  siteUrl: string;
+  exchange: string;
+  accountInfo?: { accountId: string; memo: string };
+  isActive: boolean;
+  lastActiveAt?: string;
+}
+
+interface TradingPairWithBrowserProfiles {
+  pairId: string;
+  pairName: string;
+  exchangeA: Exchange;
+  exchangeB: Exchange;
+  status: string;
+  createdAt: string;
+  browserA?: BrowserProfile;
+  browserB?: BrowserProfile;
+}
+
+interface BrowserStatus {
+  uuid: string;
+  isConnected: boolean;
+  tabs: string[];
+}
+
+interface BrowserStatusResponse {
+  count: number;
+  statuses: BrowserStatus[];
+}
+
+// API 함수들
+const browserApi = {
+  // 새로운 pair 정보와 함께 브라우저 프로필 조회
+  getTradingPairsWithBrowserProfiles: async (): Promise<
+    TradingPairWithBrowserProfiles[]
+  > => {
+    const response = await fetch(
+      createApiUrl(API_CONFIG.ENDPOINTS.TRADING.PAIRS_WITH_BROWSER_PROFILES)
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch trading pairs with browser profiles");
+    }
+    const result = await response.json();
+    return result.data || []; // data 필드에서 배열 추출
+  },
+
+  // 브라우저 상태 조회
+  getBrowserStatuses: async (): Promise<BrowserStatusResponse> => {
+    const response = await fetch(createApiUrl("/puppeteer/status"));
+    if (!response.ok) {
+      throw new Error("Failed to fetch browser statuses");
+    }
+    const result = await response.json();
+    return result.data || { count: 0, statuses: [] };
+  },
+
+  // 브라우저 실행
+  launchBrowser: async ({
+    url,
+  }: {
+    url: string;
+  }): Promise<{ uuid: string; title: string }> => {
+    const response = await fetch(createApiUrl("/puppeteer/launch"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to launch browser");
+    }
+    return response.json();
+  },
+
+  // 브라우저 재생성
+  reopenBrowser: async ({
+    uuid,
+  }: {
+    uuid: string;
+  }): Promise<{ title: string; isAlreadyRunning: boolean }> => {
+    const response = await fetch(createApiUrl("/puppeteer/reopen"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuid }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to reopen browser");
+    }
+    return response.json();
+  },
+
+  // 프로필 삭제
+  deleteProfile: async (uuid: string): Promise<void> => {
+    const response = await fetch(
+      createApiUrl(`/fingerprint/profiles/${uuid}`),
+      {
+        method: "DELETE",
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to delete profile");
+    }
+  },
+};
 
 // Query Keys
 export const browserQueryKeys = {
   all: ["browser"] as const,
   profiles: () => [...browserQueryKeys.all, "profiles"] as const,
-  profile: (uuid: string) => [...browserQueryKeys.profiles(), uuid] as const,
-  status: () => [...browserQueryKeys.all, "status"] as const,
-  activeBrowsers: () => [...browserQueryKeys.all, "active-browsers"] as const,
+  tradingPairsWithProfiles: () =>
+    [...browserQueryKeys.all, "trading-pairs-with-profiles"] as const,
+  profile: (uuid: string) =>
+    [...browserQueryKeys.all, "profile", uuid] as const,
 };
 
-// 브라우저 프로필 목록 조회
-export const useProfiles = () => {
+// 새로운 pair 정보와 함께 브라우저 프로필 조회 훅
+export const useTradingPairsWithBrowserProfiles = () => {
   return useQuery({
-    queryKey: browserQueryKeys.profiles(),
-    queryFn: fingerprintApi.getProfiles,
-    staleTime: 10 * 1000, // 10초로 단축
+    queryKey: browserQueryKeys.tradingPairsWithProfiles(),
+    queryFn: browserApi.getTradingPairsWithBrowserProfiles,
+    staleTime: 10 * 1000, // 10초
     refetchInterval: 15 * 1000, // 15초마다 자동 갱신
-    refetchOnWindowFocus: true, // 윈도우 포커스 시 갱신
   });
 };
 
-// 개별 브라우저 프로필 조회
-export const useProfile = (uuid: string) => {
+// 브라우저 상태 조회 훅
+export const useBrowserStatuses = () => {
   return useQuery({
-    queryKey: browserQueryKeys.profile(uuid),
-    queryFn: () => fingerprintApi.getProfile(uuid),
-    enabled: !!uuid,
-    staleTime: 5 * 60 * 1000, // 5분
-  });
-};
-
-// 브라우저 상태 조회
-export const useBrowserStatus = () => {
-  return useQuery({
-    queryKey: browserQueryKeys.status(),
-    queryFn: puppeteerApi.getBrowserStatus,
-    staleTime: 5 * 1000, // 5초로 단축
-    refetchInterval: 10 * 1000, // 10초마다 자동 갱신
-    refetchOnWindowFocus: true, // 윈도우 포커스 시 갱신
-  });
-};
-
-// 활성 브라우저 목록 조회 (실시간 동기화용)
-export const useActiveBrowsers = () => {
-  return useQuery({
-    queryKey: browserQueryKeys.activeBrowsers(),
-    queryFn: async () => {
-      const response = await fetch(
-        `${
-          process.env.VITE_API_BASE_URL || "http://localhost:7777"
-        }/puppeteer/active-browsers`
-      );
-      const data = await response.json();
-      return data.data?.browsers || [];
-    },
+    queryKey: ["browser", "statuses"],
+    queryFn: browserApi.getBrowserStatuses,
     staleTime: 3 * 1000, // 3초
     refetchInterval: 5 * 1000, // 5초마다 자동 갱신
-    refetchOnWindowFocus: true,
   });
 };
 
-// 브라우저 실행 뮤테이션
+// 브라우저 실행 훅
 export const useLaunchBrowser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: LaunchBrowserRequest) =>
-      puppeteerApi.launchBrowser(data),
+    mutationFn: browserApi.launchBrowser,
     onSuccess: () => {
-      // 브라우저 상태 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: browserQueryKeys.status() });
-      // 프로필 목록 캐시 무효화 (새 프로필 추가)
-      queryClient.invalidateQueries({ queryKey: browserQueryKeys.profiles() });
-    },
-    onError: (error) => {
-      console.error("브라우저 실행 실패:", error);
+      queryClient.invalidateQueries({
+        queryKey: browserQueryKeys.tradingPairsWithProfiles(),
+      });
     },
   });
 };
 
-// 브라우저 재생성 뮤테이션
+// 브라우저 재생성 훅
 export const useReopenBrowser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: ReopenBrowserRequest) =>
-      puppeteerApi.reopenBrowser(data),
+    mutationFn: browserApi.reopenBrowser,
     onSuccess: () => {
-      // 브라우저 상태 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: browserQueryKeys.status() });
-      // 프로필 목록 캐시 무효화 (활성 상태 업데이트)
-      queryClient.invalidateQueries({ queryKey: browserQueryKeys.profiles() });
-    },
-    onError: (error) => {
-      console.error("브라우저 재생성 실패:", error);
-    },
-  });
-};
-
-// 프로필 저장 뮤테이션
-export const useSaveFingerprint = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: SaveFingerprintRequest) =>
-      fingerprintApi.saveFingerprint(data),
-    onSuccess: (uuid) => {
-      // 프로필 목록 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: browserQueryKeys.profiles() });
-      // 새로 생성된 프로필 캐시 무효화
       queryClient.invalidateQueries({
-        queryKey: browserQueryKeys.profile(uuid),
+        queryKey: browserQueryKeys.tradingPairsWithProfiles(),
       });
     },
-    onError: (error) => {
-      console.error("프로필 저장 실패:", error);
-    },
   });
 };
 
-// 세션 업데이트 뮤테이션
-export const useUpdateSession = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: UpdateSessionRequest) =>
-      fingerprintApi.updateSession(data),
-    onSuccess: (_, variables) => {
-      // 해당 프로필 캐시 무효화
-      queryClient.invalidateQueries({
-        queryKey: browserQueryKeys.profile(variables.uuid),
-      });
-    },
-    onError: (error) => {
-      console.error("세션 업데이트 실패:", error);
-    },
-  });
-};
-
-// 프로필 삭제 뮤테이션
+// 프로필 삭제 훅
 export const useDeleteProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (uuid: string) => fingerprintApi.deleteProfile(uuid),
-    onSuccess: (_, uuid) => {
-      // 프로필 목록 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: browserQueryKeys.profiles() });
-      // 삭제된 프로필 캐시 제거
-      queryClient.removeQueries({ queryKey: browserQueryKeys.profile(uuid) });
-    },
-    onError: (error) => {
-      console.error("프로필 삭제 실패:", error);
+    mutationFn: browserApi.deleteProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: browserQueryKeys.tradingPairsWithProfiles(),
+      });
     },
   });
 };
+
+// 기존 호환성을 위한 훅들 (deprecated)
+export const useProfiles = useTradingPairsWithBrowserProfiles;

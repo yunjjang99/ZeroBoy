@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import {
     Home,
     BarChart3,
@@ -31,26 +32,27 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onSectionChange, activeSection }) => {
     const { t } = useTranslation()
+    const location = useLocation()
 
     const sidebarData: SidebarSection[] = [
         {
             title: 'OVERVIEW',
             items: [
-                { icon: <Home size={20} />, label: t('common.dashboard'), id: 'dashboard', active: activeSection === 'dashboard' },
-                { icon: <BarChart3 size={20} />, label: t('common.analytics'), id: 'analytics', active: activeSection === 'analytics' },
-                { icon: <FolderOpen size={20} />, label: t('common.browser'), id: 'browser', active: activeSection === 'browser' }
+                { icon: <Home size={20} />, label: t('common.dashboard'), id: 'dashboard', active: location.pathname === '/dashboard' },
+                { icon: <BarChart3 size={20} />, label: t('common.analytics'), id: 'analytics', active: location.pathname === '/analytics' },
+                { icon: <FolderOpen size={20} />, label: t('common.browser'), id: 'browser', active: location.pathname === '/browser' }
             ]
         },
         {
             title: 'TRADING',
             items: [
-                { icon: <TrendingUp size={20} />, label: '거래 관제', id: 'trading', active: activeSection === 'trading' }
+                { icon: <TrendingUp size={20} />, label: t('trading.title'), id: 'trading', active: location.pathname === '/trading' }
             ]
         },
         {
             title: 'FINANCE',
             items: [
-                { icon: <CreditCard size={20} />, label: t('common.transactions'), id: 'transactions', active: activeSection === 'transactions' },
+                { icon: <CreditCard size={20} />, label: t('common.transactions'), id: 'transactions', active: location.pathname === '/transactions' },
                 // { icon: <FileText size={20} />, label: t('common.invoices') },
                 // { icon: <Payments size={20} />, label: t('common.payments') }
             ]
@@ -58,8 +60,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSectionChange, activeSection }) => 
         {
             title: 'TEAM',
             items: [
-                { icon: <Users size={20} />, label: t('common.members'), id: 'members', active: activeSection === 'members' },
-                { icon: <Shield size={20} />, label: t('common.permissions'), id: 'permissions', active: activeSection === 'permissions' },
+                { icon: <Users size={20} />, label: t('common.members'), id: 'members', active: location.pathname === '/members' },
+                { icon: <Shield size={20} />, label: t('common.permissions'), id: 'permissions', active: location.pathname === '/permissions' },
                 // { icon: <MessageCircle size={20} />, label: t('common.chat') },
                 // { icon: <Calendar size={20} />, label: t('common.meetings') }
             ]
@@ -84,8 +86,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSectionChange, activeSection }) => 
                         <ul className="space-y-1 sm:space-y-2">
                             {section.items.map((item, itemIndex) => (
                                 <li key={itemIndex}>
-                                    <button
-                                        onClick={() => onSectionChange(item.id)}
+                                    <Link
+                                        to={`/${item.id}`}
                                         className={`w-full flex items-center space-x-2 sm:space-x-3 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm transition-colors ${item.active
                                             ? 'bg-blue-600 text-white'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
@@ -94,10 +96,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onSectionChange, activeSection }) => 
                                         <div className="flex-shrink-0">
                                             {React.cloneElement(item.icon as React.ReactElement, {
                                                 size: window.innerWidth < 640 ? 16 : 20
-                                            })}
+                                            } as any)}
                                         </div>
                                         <span className="truncate">{item.label}</span>
-                                    </button>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
@@ -107,20 +109,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onSectionChange, activeSection }) => 
 
             {/* Bottom Navigation */}
             <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2 no-drag">
-                <a
-                    href="#"
+                <Link
+                    to="/settings"
                     className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                     <Settings size={20} />
                     <span>{t('common.settings')}</span>
-                </a>
-                <a
-                    href="#"
+                </Link>
+                <Link
+                    to="/help"
                     className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                     <HelpCircle size={20} />
                     <span>{t('common.help')}</span>
-                </a>
+                </Link>
             </div>
         </div>
     )

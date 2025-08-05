@@ -340,8 +340,19 @@ export class PuppeteerService implements OnModuleDestroy {
     return null;
   }
 
-  async createBrowser(siteUrl: string): Promise<PuppeteerInstance> {
+  async createBrowser(
+    siteUrl: string,
+    accountInfo?: { accountId: string; memo: string },
+    exchange?: string
+  ): Promise<PuppeteerInstance> {
     const { connect } = require("puppeteer-real-browser");
+
+    // 디버깅: accountInfo 로그
+    console.log(
+      "🔍 createBrowser - accountInfo:",
+      JSON.stringify(accountInfo, null, 2)
+    );
+    console.log("🔍 createBrowser - exchange:", exchange);
 
     const { browser, page }: { browser: Browser; page: Page } = await connect({
       headless: false,
@@ -367,9 +378,14 @@ export class PuppeteerService implements OnModuleDestroy {
     const fingerprint = await generateRandomFingerprintForKorea(publicIp);
     const uuid = await this.fingerprintService.saveFingerprint(
       fingerprint,
-      siteUrl
+      siteUrl,
+      accountInfo,
+      exchange
     );
     this.logger.log(`📦 브라우저 Fingerprint 저장됨: ${uuid}`);
+    this.logger.log(
+      `📦 accountInfo 저장됨: ${JSON.stringify(accountInfo, null, 2)}`
+    );
 
     await applyFingerprint(page, fingerprint);
 
@@ -400,7 +416,7 @@ export class PuppeteerService implements OnModuleDestroy {
     });
 
     // ✅ 네트워크 추적 활성화
-    await this.enableCDPNetwork(page, siteUrl);
+    //  await this.enableCDPNetwork(page, siteUrl);
 
     this.browsers.set(uuid, browser);
 
@@ -555,7 +571,7 @@ export class PuppeteerService implements OnModuleDestroy {
 
     const status = await this.getBrowserStatus(uuid);
     console.log(status);
-    await this.enableCDPNetwork(page, fingerprint.siteUrl);
+    // await this.enableCDPNetwork(page, fingerprint.siteUrl);
 
     setInterval(async () => {
       try {

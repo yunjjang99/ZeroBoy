@@ -1,8 +1,9 @@
 import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { PlusCircle, CheckCircle2, XCircle, Activity } from 'lucide-react'
+import { PlusCircle, CheckCircle2, XCircle, Activity, AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { ExchangeLogo } from '@/components/common/ExchangeLogo'
 
 interface ExchangeInfo {
     name: string
@@ -15,6 +16,8 @@ interface CreatePairFormProps {
         exchangeB: ExchangeInfo
     }
     onCreatePair: () => void
+    hasActivePairs?: boolean
+    activePairsCount?: number
 }
 
 const StatusDisplay = ({
@@ -27,9 +30,7 @@ const StatusDisplay = ({
     return (
         <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border border-slate-200 dark:border-slate-600 p-4 shadow-sm hover:shadow-md transition-all duration-200">
             <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-lg flex items-center justify-center shadow-sm">
-                    <span className="text-white font-bold text-sm">{name.charAt(0)}</span>
-                </div>
+                <ExchangeLogo name={name} size="lg" className="bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500" />
                 <span className="font-semibold text-slate-900 dark:text-slate-100">{name}</span>
             </div>
             <div className="flex items-center gap-4">
@@ -58,7 +59,7 @@ const StatusDisplay = ({
     )
 }
 
-export function CreatePairForm({ activePair, onCreatePair }: CreatePairFormProps) {
+export function CreatePairForm({ activePair, onCreatePair, hasActivePairs = false, activePairsCount = 0 }: CreatePairFormProps) {
     const { t } = useTranslation()
 
     // 실제 애플리케이션에서는 API를 통해 상태를 받아옵니다.
@@ -83,20 +84,50 @@ export function CreatePairForm({ activePair, onCreatePair }: CreatePairFormProps
                 </div>
             </CardHeader>
             <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <StatusDisplay name={activePair.exchangeA.name} {...exchangeAStatus} />
-                    <StatusDisplay name={activePair.exchangeB.name} {...exchangeBStatus} />
-                </div>
-                <div className="flex justify-center pt-4">
-                    <Button
-                        size="lg"
-                        className="w-full max-w-sm text-base bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                        onClick={onCreatePair}
-                    >
-                        <PlusCircle className="mr-2 h-5 w-5" />
-                        {t('trading.hedgingPairs.createNew')}
-                    </Button>
-                </div>
+                {hasActivePairs ? (
+                    // 활성 페어가 있는 경우 - 거래 진행 중 표시
+                    <div className="text-center py-8">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <AlertTriangle className="h-8 w-8 text-amber-500 dark:text-amber-400" />
+                            <div>
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                                    현재 거래 진행 중
+                                </h3>
+                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                    {activePairsCount}개의 활성 페어가 실행 중입니다.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
+                            <p className="text-sm text-amber-700 dark:text-amber-300">
+                                새로운 페어를 생성하려면 기존 활성 페어를 먼저 비활성화해야 합니다.
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    // 활성 페어가 없는 경우 - 거래소 상태 표시
+                    <>
+                        <div className="text-center mb-4">
+                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                                아직 활성화된 거래소가 없습니다.
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <StatusDisplay name={activePair.exchangeA.name} {...exchangeAStatus} />
+                            <StatusDisplay name={activePair.exchangeB.name} {...exchangeBStatus} />
+                        </div>
+                        <div className="flex justify-center pt-4">
+                            <Button
+                                size="lg"
+                                className="w-full max-w-sm text-base bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                                onClick={onCreatePair}
+                            >
+                                <PlusCircle className="mr-2 h-5 w-5" />
+                                {t('trading.hedgingPairs.createNew')}
+                            </Button>
+                        </div>
+                    </>
+                )}
             </CardContent>
         </Card>
     )
