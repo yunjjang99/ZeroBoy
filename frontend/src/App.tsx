@@ -10,6 +10,7 @@ import AccountsSection from './components/AccountsSection'
 import TransactionsSection from './components/TransactionsSection'
 import EventsSection from './components/EventsSection'
 import BrowserProfilesSection from './components/BrowserProfilesSection'
+import TradingSection from './components/TradingSection'
 import AlertDemo from './components/AlertDemo'
 import { queryClient } from './lib/queryClient'
 import './i18n'
@@ -95,6 +96,10 @@ function AppContent() {
 
                     {activeSection === 'browser' && (
                         <BrowserProfilesSection />
+                    )}
+
+                    {activeSection === 'trading' && (
+                        <TradingSection />
                     )}
 
                     {activeSection === 'analytics' && (

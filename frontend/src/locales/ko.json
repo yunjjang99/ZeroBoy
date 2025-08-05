@@ -83,5 +83,59 @@
       "timeframe1d": "1일",
       "timeframe1w": "1주"
     }
+  },
+  "trading": {
+    "title": "거래 관제",
+    "subtitle": "암호화폐 헷징 거래 관리",
+    "exchangeStatus": {
+      "title": "거래소 상태",
+      "description": "현재 연결된 거래소의 상태를 확인하세요",
+      "loggedIn": "로그인",
+      "loggedOut": "로그아웃",
+      "connected": "연결됨",
+      "disconnected": "끊김",
+      "loginStatus": "로그인 상태",
+      "networkStatus": "네트워크 상태"
+    },
+    "hedgingPairs": {
+      "title": "헷징 페어",
+      "total": "총 {{count}}개",
+      "noPairs": "헷징 페어가 없습니다",
+      "noPairsDesc": "새로운 헷징 페어를 생성하여 거래를 시작하세요",
+      "createFirst": "첫 번째 페어 생성",
+      "createNew": "새 헷징 페어",
+      "createNewShort": "새 페어"
+    },
+    "pairSelector": {
+      "title": "거래소 페어 설정",
+      "description": "헷징에 사용할 두 개의 거래소를 선택하세요",
+      "exchange1": "거래소 1",
+      "exchange2": "거래소 2",
+      "selectExchange": "거래소 선택",
+      "changePair": "거래소 페어 변경",
+      "save": "저장"
+    },
+    "position": {
+      "long": "롱",
+      "short": "숏",
+      "entryPrice": "진입가",
+      "markPrice": "시장가",
+      "quantity": "수량",
+      "leverage": "레버리지",
+      "unrealizedPnl": "미실현손익",
+      "noLongPosition": "롱 포지션 없음",
+      "noShortPosition": "숏 포지션 없음",
+      "noInfo": "정보 없음"
+    },
+    "status": {
+      "running": "실행중",
+      "waiting": "대기중",
+      "error": "오류"
+    },
+    "actions": {
+      "launchBrowser": "브라우저 실행",
+      "settings": "설정",
+      "delete": "삭제"
+    }
   }
 } 

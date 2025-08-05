@@ -59,6 +59,15 @@ export class BrowserFingerprint {
   @Column("text", { nullable: true })
   sessionStorage?: string;
 
+  @Column({ default: false })
+  isActive: boolean;
+
+  @Column({ nullable: true })
+  lastActiveAt?: Date;
+
+  @Column({ nullable: true })
+  browserProcessId?: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }

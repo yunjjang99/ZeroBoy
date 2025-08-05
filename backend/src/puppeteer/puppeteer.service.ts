@@ -404,6 +404,12 @@ export class PuppeteerService implements OnModuleDestroy {
 
     this.browsers.set(uuid, browser);
 
+    // 브라우저 연결 해제 이벤트 리스너 추가
+    browser.on("disconnected", async () => {
+      this.logger.log(`Browser disconnected: ${uuid}`);
+      this.browsers.delete(uuid);
+    });
+
     // 10초마다 저장
     setInterval(async () => {
       try {
@@ -434,16 +440,41 @@ export class PuppeteerService implements OnModuleDestroy {
     return { browser, uuid };
   }
 
-  async reopenBrowser(uuid: string): Promise<Browser> {
+  async reopenBrowser(
+    uuid: string
+  ): Promise<{ browser: Browser; isAlreadyRunning: boolean; title: string }> {
     const { connect } = require("puppeteer-real-browser");
 
-    // 1. DB에서 fingerprint 불러오기
+    // 1. 현재 브라우저 상태 확인
+    const existingBrowser = this.browsers.get(uuid);
+    if (existingBrowser && existingBrowser.isConnected()) {
+      try {
+        // 이미 열려있는 브라우저를 맨 위로 올리기
+        const pages = await existingBrowser.pages();
+        if (pages.length > 0) {
+          const page = pages[0];
+          await page.bringToFront();
+          const title = await page.title();
+          this.logger.log(
+            `이미 열려있는 브라우저를 맨 위로 올렸습니다. (UUID: ${uuid})`
+          );
+          return { browser: existingBrowser, isAlreadyRunning: true, title };
+        }
+      } catch (error) {
+        this.logger.warn(
+          `기존 브라우저 접근 실패, 새로 생성합니다. (UUID: ${uuid})`,
+          error
+        );
+      }
+    }
+
+    // 2. DB에서 fingerprint 불러오기
     const fingerprint = await this.fingerprintService.getFingerprint(uuid);
     if (!fingerprint) {
       throw new Error(`해당 UUID에 대한 Fingerprint 없음: ${uuid}`);
     }
 
-    // 2. 브라우저 실행
+    // 3. 브라우저 실행
     const { browser, page }: { browser: Browser; page: Page } = await connect({
       headless: false,
       executablePath: process.env.CHROME_PATH,
@@ -515,7 +546,14 @@ export class PuppeteerService implements OnModuleDestroy {
 
     this.logger.log(`♻️ Fingerprint 재적용 브라우저 실행됨 (UUID: ${uuid})`);
     this.browsers.set(uuid, browser);
-    const status = await this.getBrowserStatus("uuid");
+
+    // 브라우저 연결 해제 이벤트 리스너 추가
+    browser.on("disconnected", async () => {
+      this.logger.log(`Browser disconnected: ${uuid}`);
+      this.browsers.delete(uuid);
+    });
+
+    const status = await this.getBrowserStatus(uuid);
     console.log(status);
     await this.enableCDPNetwork(page, fingerprint.siteUrl);
 
@@ -545,7 +583,8 @@ export class PuppeteerService implements OnModuleDestroy {
       }
     }, 10_000);
 
-    return browser;
+    const title = await page.title();
+    return { browser, isAlreadyRunning: false, title };
   }
 
   async getBrowserStatuses(): Promise<
@@ -571,6 +610,40 @@ export class PuppeteerService implements OnModuleDestroy {
     return statuses;
   }
 
+  async getActiveBrowsers(): Promise<
+    {
+      uuid: string;
+      isConnected: boolean;
+      tabs: string[];
+      lastActiveAt?: Date;
+    }[]
+  > {
+    const activeBrowsers = [];
+    for (const [uuid, browser] of this.browsers.entries()) {
+      try {
+        const isConnected = browser.isConnected();
+        const pages = await browser.pages();
+        const tabs = pages.map((page) => page.url());
+
+        // 실제 연결 상태를 기반으로 활성 브라우저 판단
+        if (isConnected) {
+          activeBrowsers.push({
+            uuid,
+            isConnected,
+            tabs,
+            lastActiveAt: new Date(), // 현재 연결된 브라우저는 활성 상태
+          });
+        }
+      } catch (error) {
+        this.logger.error(
+          `Failed to retrieve active browser info: ${uuid}`,
+          error
+        );
+      }
+    }
+    return activeBrowsers;
+  }
+
   private async getPublicIp(): Promise<string> {
     try {
       const response = await fetch("https://api.ipify.org?format=json");
@@ -585,13 +658,29 @@ export class PuppeteerService implements OnModuleDestroy {
   async onModuleDestroy() {
     this.logger.log("모듈 종료, 브라우저 모두 종료");
 
-    // Map의 values를 배열로 변환 후 map 사용
-    const closeTasks = Array.from(this.browsers.values()).map((browser) =>
-      browser.close()
-    );
+    try {
+      // Map의 values를 배열로 변환 후 map 사용
+      const closeTasks = Array.from(this.browsers.values()).map(
+        async (browser) => {
+          try {
+            await browser.close();
+          } catch (error) {
+            this.logger.error("브라우저 종료 중 오류:", error);
+          }
+        }
+      );
 
-    await Promise.all(closeTasks);
-    this.browsers.clear();
+      // 모든 브라우저 종료 대기 (최대 10초)
+      await Promise.race([
+        Promise.all(closeTasks),
+        new Promise((resolve) => setTimeout(resolve, 10000)),
+      ]);
+
+      this.browsers.clear();
+      this.logger.log("모든 브라우저 종료 완료");
+    } catch (error) {
+      this.logger.error("브라우저 종료 중 오류:", error);
+    }
   }
 
   private async enableCDPNetwork(

@@ -13,6 +13,7 @@ export const browserQueryKeys = {
   profiles: () => [...browserQueryKeys.all, "profiles"] as const,
   profile: (uuid: string) => [...browserQueryKeys.profiles(), uuid] as const,
   status: () => [...browserQueryKeys.all, "status"] as const,
+  activeBrowsers: () => [...browserQueryKeys.all, "active-browsers"] as const,
 };
 
 // 브라우저 프로필 목록 조회
@@ -20,7 +21,9 @@ export const useProfiles = () => {
   return useQuery({
     queryKey: browserQueryKeys.profiles(),
     queryFn: fingerprintApi.getProfiles,
-    staleTime: 30 * 1000, // 30초
+    staleTime: 10 * 1000, // 10초로 단축
+    refetchInterval: 15 * 1000, // 15초마다 자동 갱신
+    refetchOnWindowFocus: true, // 윈도우 포커스 시 갱신
   });
 };
 
@@ -39,8 +42,28 @@ export const useBrowserStatus = () => {
   return useQuery({
     queryKey: browserQueryKeys.status(),
     queryFn: puppeteerApi.getBrowserStatus,
-    staleTime: 10 * 1000, // 10초
-    refetchInterval: 30 * 1000, // 30초마다 자동 갱신
+    staleTime: 5 * 1000, // 5초로 단축
+    refetchInterval: 10 * 1000, // 10초마다 자동 갱신
+    refetchOnWindowFocus: true, // 윈도우 포커스 시 갱신
+  });
+};
+
+// 활성 브라우저 목록 조회 (실시간 동기화용)
+export const useActiveBrowsers = () => {
+  return useQuery({
+    queryKey: browserQueryKeys.activeBrowsers(),
+    queryFn: async () => {
+      const response = await fetch(
+        `${
+          process.env.VITE_API_BASE_URL || "http://localhost:7777"
+        }/puppeteer/active-browsers`
+      );
+      const data = await response.json();
+      return data.data?.browsers || [];
+    },
+    staleTime: 3 * 1000, // 3초
+    refetchInterval: 5 * 1000, // 5초마다 자동 갱신
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -54,6 +77,8 @@ export const useLaunchBrowser = () => {
     onSuccess: () => {
       // 브라우저 상태 캐시 무효화
       queryClient.invalidateQueries({ queryKey: browserQueryKeys.status() });
+      // 프로필 목록 캐시 무효화 (새 프로필 추가)
+      queryClient.invalidateQueries({ queryKey: browserQueryKeys.profiles() });
     },
     onError: (error) => {
       console.error("브라우저 실행 실패:", error);
@@ -71,6 +96,8 @@ export const useReopenBrowser = () => {
     onSuccess: () => {
       // 브라우저 상태 캐시 무효화
       queryClient.invalidateQueries({ queryKey: browserQueryKeys.status() });
+      // 프로필 목록 캐시 무효화 (활성 상태 업데이트)
+      queryClient.invalidateQueries({ queryKey: browserQueryKeys.profiles() });
     },
     onError: (error) => {
       console.error("브라우저 재생성 실패:", error);

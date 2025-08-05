@@ -48,6 +48,8 @@ function startBackendServer(): Promise<void> {
         PORT: "7777",
         ELECTRON_IS_DEV: "false",
       },
+      // 프로세스 그룹 설정으로 자식 프로세스들이 함께 종료되도록 함
+      detached: false,
     });
 
     backendProcess.stdout?.on("data", (data) => {
@@ -85,13 +87,31 @@ function startBackendServer(): Promise<void> {
 function stopBackendServer() {
   if (backendProcess) {
     try {
+      console.log("Stopping backend server...");
+
+      // 먼저 SIGTERM으로 정상 종료 시도
       backendProcess.kill("SIGTERM");
+
       // 3초 후에도 종료되지 않으면 강제 종료
       setTimeout(() => {
         if (backendProcess && !backendProcess.killed) {
+          console.log("Force killing backend server...");
           backendProcess.kill("SIGKILL");
         }
       }, 3000);
+
+      // 5초 후에도 프로세스가 남아있으면 추가 정리
+      setTimeout(() => {
+        if (backendProcess && !backendProcess.killed) {
+          console.log("Emergency cleanup of backend process...");
+          try {
+            process.kill(-backendProcess.pid!, "SIGKILL"); // 프로세스 그룹 전체 종료
+          } catch (e) {
+            console.error("Failed to kill process group:", e);
+          }
+        }
+      }, 5000);
+
       backendProcess = null;
     } catch (error) {
       console.error("Error stopping backend server:", error);

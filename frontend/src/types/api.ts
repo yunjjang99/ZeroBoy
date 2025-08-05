@@ -29,7 +29,6 @@ export interface BrowserProfile {
   publicIp: string;
   siteUrl: string;
   createdAt: Date;
-  isActive?: boolean;
   cookies?: any[] | null;
   localStorage?: string | null;
   sessionStorage?: string | null;
@@ -43,6 +42,8 @@ export interface LaunchBrowserResponse {
 
 export interface ReopenBrowserResponse {
   title: string;
+  message: string;
+  isAlreadyRunning: boolean;
 }
 
 export interface BrowserStatusResponse {

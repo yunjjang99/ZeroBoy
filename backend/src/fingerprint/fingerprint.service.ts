@@ -60,6 +60,24 @@ export class FingerprintService {
     return result.affected ? result.affected > 0 : false;
   }
 
+  async updateBrowserStatus(
+    uuid: string,
+    status: {
+      isActive: boolean;
+      lastActiveAt: Date;
+      browserProcessId?: string | null;
+    }
+  ): Promise<void> {
+    await this.fingerprintRepo.update(
+      { uuid },
+      {
+        isActive: status.isActive,
+        lastActiveAt: status.lastActiveAt,
+        browserProcessId: status.browserProcessId,
+      }
+    );
+  }
+
   // 테스트용 더미 데이터 생성
   async createDummyData(): Promise<void> {
     const existingCount = await this.fingerprintRepo.count();

@@ -7,7 +7,8 @@ import {
     Users,
     Shield,
     Settings,
-    HelpCircle
+    HelpCircle,
+    TrendingUp
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -41,6 +42,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onSectionChange, activeSection }) => 
             ]
         },
         {
+            title: 'TRADING',
+            items: [
+                { icon: <TrendingUp size={20} />, label: '거래 관제', id: 'trading', active: activeSection === 'trading' }
+            ]
+        },
+        {
             title: 'FINANCE',
             items: [
                 { icon: <CreditCard size={20} />, label: t('common.transactions'), id: 'transactions', active: activeSection === 'transactions' },
@@ -60,32 +67,36 @@ const Sidebar: React.FC<SidebarProps> = ({ onSectionChange, activeSection }) => 
     ]
 
     return (
-        <div className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen flex flex-col">
+        <div className="w-48 sm:w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen flex flex-col">
             {/* Logo */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 drag-region">
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">ZeroBoy</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Crypto Trading Bot</p>
+            <div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 drag-region">
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">ZeroBoy</h1>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">Crypto Trading Bot</p>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-6 no-drag">
+            <nav className="flex-1 p-2 sm:p-4 space-y-4 sm:space-y-6 no-drag">
                 {sidebarData.map((section, sectionIndex) => (
                     <div key={sectionIndex}>
-                        <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                        <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 sm:mb-3 px-1">
                             {section.title}
                         </h3>
-                        <ul className="space-y-2">
+                        <ul className="space-y-1 sm:space-y-2">
                             {section.items.map((item, itemIndex) => (
                                 <li key={itemIndex}>
                                     <button
                                         onClick={() => onSectionChange(item.id)}
-                                        className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors ${item.active
+                                        className={`w-full flex items-center space-x-2 sm:space-x-3 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm transition-colors ${item.active
                                             ? 'bg-blue-600 text-white'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                                             }`}
                                     >
-                                        {item.icon}
-                                        <span>{item.label}</span>
+                                        <div className="flex-shrink-0">
+                                            {React.cloneElement(item.icon as React.ReactElement, {
+                                                size: window.innerWidth < 640 ? 16 : 20
+                                            })}
+                                        </div>
+                                        <span className="truncate">{item.label}</span>
                                     </button>
                                 </li>
                             ))}

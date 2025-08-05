@@ -89,5 +89,59 @@
       "timeframe1d": "1D",
       "timeframe1w": "1W"
     }
+  },
+  "trading": {
+    "title": "Trading Control",
+    "subtitle": "Cryptocurrency Hedging Trade Management",
+    "exchangeStatus": {
+      "title": "Exchange Status",
+      "description": "Check the status of currently connected exchanges",
+      "loggedIn": "Logged In",
+      "loggedOut": "Logged Out",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "loginStatus": "Login Status",
+      "networkStatus": "Network Status"
+    },
+    "hedgingPairs": {
+      "title": "Hedging Pairs",
+      "total": "Total {{count}}",
+      "noPairs": "No Hedging Pairs",
+      "noPairsDesc": "Create a new hedging pair to start trading",
+      "createFirst": "Create First Pair",
+      "createNew": "New Hedging Pair",
+      "createNewShort": "New Pair"
+    },
+    "pairSelector": {
+      "title": "Exchange Pair Settings",
+      "description": "Select two exchanges for hedging",
+      "exchange1": "Exchange 1",
+      "exchange2": "Exchange 2",
+      "selectExchange": "Select Exchange",
+      "changePair": "Change Exchange Pair",
+      "save": "Save"
+    },
+    "position": {
+      "long": "LONG",
+      "short": "SHORT",
+      "entryPrice": "Entry Price",
+      "markPrice": "Mark Price",
+      "quantity": "Quantity",
+      "leverage": "Leverage",
+      "unrealizedPnl": "Unrealized PnL",
+      "noLongPosition": "No Long Position",
+      "noShortPosition": "No Short Position",
+      "noInfo": "No Info"
+    },
+    "status": {
+      "running": "Running",
+      "waiting": "Waiting",
+      "error": "Error"
+    },
+    "actions": {
+      "launchBrowser": "Launch Browser",
+      "settings": "Settings",
+      "delete": "Delete"
+    }
   }
 } 

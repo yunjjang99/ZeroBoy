@@ -29,6 +29,25 @@ async function bootstrap() {
       `Running in Electron environment. Resources path: ${(process as any).resourcesPath}`
     );
   }
+
+  // 시그널 핸들링으로 정상 종료 보장
+  const gracefulShutdown = async (signal: string) => {
+    console.log(`Received ${signal}. Starting graceful shutdown...`);
+
+    try {
+      await app.close();
+      console.log("Application closed successfully");
+      process.exit(0);
+    } catch (error) {
+      console.error("Error during graceful shutdown:", error);
+      process.exit(1);
+    }
+  };
+
+  // 시그널 핸들러 등록
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+  process.on("SIGUSR2", () => gracefulShutdown("SIGUSR2")); // nodemon용
 }
 
 bootstrap();

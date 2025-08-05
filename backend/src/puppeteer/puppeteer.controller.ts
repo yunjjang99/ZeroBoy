@@ -27,13 +27,15 @@ export class PuppeteerController {
         return failure({ message: "UUID가 비어 있습니다." });
       }
 
-      const browser = await this.puppeteerService.reopenBrowser(uuid);
+      const result = await this.puppeteerService.reopenBrowser(uuid);
 
-      const pages = await browser.pages();
-      const page = pages[0];
-      const title = await page.title();
-
-      return success({ title });
+      return success({
+        title: result.title,
+        isAlreadyRunning: result.isAlreadyRunning,
+        message: result.isAlreadyRunning
+          ? "이미 열려있는 브라우저를 맨 위로 올렸습니다."
+          : "브라우저가 재생성되었습니다.",
+      });
     } catch (err) {
       console.error("reopen error:", err);
       return failure(err.message ?? { message: err.message });
@@ -44,5 +46,11 @@ export class PuppeteerController {
   async browserStatus() {
     const statuses = await this.puppeteerService.getBrowserStatuses();
     return success({ count: statuses.length, statuses });
+  }
+
+  @Get("active-browsers")
+  async getActiveBrowsers() {
+    const activeBrowsers = await this.puppeteerService.getActiveBrowsers();
+    return success({ count: activeBrowsers.length, browsers: activeBrowsers });
   }
 }
