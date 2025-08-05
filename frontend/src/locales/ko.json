@@ -20,7 +20,9 @@
     "more": "더보기",
     "viewAll": "전체보기",
     "viewDetails": "상세보기",
-    "user": "사용자"
+    "user": "사용자",
+    "status": "상태",
+    "actions": "작업"
   },
   "dashboard": {
     "title": "ZeroBoy - 암호화폐 거래 봇",

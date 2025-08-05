@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { Settings, Exchange } from 'lucide-react'
+import { Settings, ArrowLeftRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 interface Exchange {
@@ -52,15 +52,15 @@ export function ExchangePairSelector({
           size="icon"
           className="border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm hover:shadow-md transition-all duration-200"
         >
-          <Exchange className="h-4 w-4" />
+          <ArrowLeftRight className="h-4 w-4" />
           <span className="sr-only">{t('trading.pairSelector.changePair')}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border-0 shadow-2xl">
+      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
         <DialogHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-lg flex items-center justify-center">
-              <Exchange className="text-white h-4 w-4" />
+              <ArrowLeftRight className="text-white h-4 w-4" />
             </div>
             <div>
               <DialogTitle className="text-xl font-bold text-slate-900 dark:text-slate-100">
@@ -82,12 +82,12 @@ export function ExchangePairSelector({
                 value={selectedKeys.keyA}
                 onValueChange={(value: string) => setSelectedKeys((prev) => ({ ...prev, keyA: value }))}
               >
-                <SelectTrigger id="exchange-a" className="border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                <SelectTrigger id="exchange-a" className="border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                   <SelectValue placeholder={t('trading.pairSelector.selectExchange')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600">
+                <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
                   {exchangeOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value} className="text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700">
+                    <SelectItem key={opt.value} value={opt.value} className="text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
                       {opt.label}
                     </SelectItem>
                   ))}
@@ -102,12 +102,12 @@ export function ExchangePairSelector({
                 value={selectedKeys.keyB}
                 onValueChange={(value: string) => setSelectedKeys((prev) => ({ ...prev, keyB: value }))}
               >
-                <SelectTrigger id="exchange-b" className="border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                <SelectTrigger id="exchange-b" className="border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                   <SelectValue placeholder={t('trading.pairSelector.selectExchange')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600">
+                <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
                   {exchangeOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value} className="text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700">
+                    <SelectItem key={opt.value} value={opt.value} className="text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
                       {opt.label}
                     </SelectItem>
                   ))}
