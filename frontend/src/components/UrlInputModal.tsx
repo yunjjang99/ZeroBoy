@@ -38,12 +38,7 @@ const UrlInputModal: React.FC<UrlInputModalProps> = ({
         }
     }
 
-    const handleConfirm = () => {
-        if (url.trim()) {
-            onConfirm(url.trim())
-            onClose()
-        }
-    }
+    // handleConfirm 함수는 form submit에서 사용되므로 제거
 
     if (!isOpen) return null
 

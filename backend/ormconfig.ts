@@ -4,8 +4,17 @@ import { join } from "path";
 import { User } from "./src/user/entities/user.entity"; // 필요한 모든 엔티티 import
 import { BrowserFingerprint } from "@/fingerprint/entities/browser-fingerprint.entity";
 
-// SQLite 전용 설정
-const databasePath = join(__dirname, "data", "db.sqlite");
+// SQLite 전용 설정 - 일렉트론 환경 고려
+const isElectron =
+  process.env.ELECTRON_IS_DEV === "true" || (process as any).resourcesPath;
+const databasePath = isElectron
+  ? join(
+      (process as any).resourcesPath || __dirname,
+      "backend",
+      "data",
+      "db.sqlite"
+    )
+  : join(__dirname, "data", "db.sqlite");
 
 const commonTypeOrmConfig: TypeOrmModuleOptions & DataSourceOptions = {
   type: "sqlite",
@@ -17,7 +26,7 @@ const commonTypeOrmConfig: TypeOrmModuleOptions & DataSourceOptions = {
   logging: false,
 };
 
-console.log("SQLite DB Path:", join(__dirname, "data", "db.sqlite"));
+console.log("SQLite DB Path:", databasePath);
 
 export const typeOrmConfig = {
   ...commonTypeOrmConfig,

@@ -91,7 +91,7 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
 
     const [toasts, setToasts] = useState<ToastItem[]>([])
 
-    const showAlert = useCallback((message: string, options = {}) => {
+    const showAlert = useCallback((message: string, options: any = {}) => {
         setAlertState({
             isOpen: true,
             title: options.title || '알림',
@@ -101,7 +101,7 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
         })
     }, [])
 
-    const showConfirm = useCallback((message: string, onConfirm: () => void, options = {}) => {
+    const showConfirm = useCallback((message: string, onConfirm: () => void, options: any = {}) => {
         setConfirmState({
             isOpen: true,
             title: options.title || '확인',
@@ -114,7 +114,7 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
         })
     }, [])
 
-    const showToast = useCallback((message: string, options = {}) => {
+    const showToast = useCallback((message: string, options: any = {}) => {
         const id = Date.now().toString()
         const newToast: ToastItem = {
             id,

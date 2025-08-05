@@ -19,7 +19,16 @@ async function bootstrap() {
   app.set("trust proxy", 1);
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  await app.listen(process.env.BACKEND_PORT);
+  const port = process.env.BACKEND_PORT || 7777;
+  await app.listen(port);
+
+  console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+  if ((process as any).resourcesPath) {
+    console.log(
+      `Running in Electron environment. Resources path: ${(process as any).resourcesPath}`
+    );
+  }
 }
 
 bootstrap();

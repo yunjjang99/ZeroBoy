@@ -1,0 +1,16 @@
+{"level":"info","message":"Starting Nest application...","timestamp":"2025-08-05T02:28:44.472Z"}
+{"level":"info","message":"TypeOrmModule dependencies initialized","timestamp":"2025-08-05T02:28:44.482Z"}
+{"level":"info","message":"PassportModule dependencies initialized","timestamp":"2025-08-05T02:28:44.482Z"}
+{"level":"info","message":"JwtModule dependencies initialized","timestamp":"2025-08-05T02:28:44.483Z"}
+{"level":"info","message":"AppModule dependencies initialized","timestamp":"2025-08-05T02:28:44.483Z"}
+{"level":"info","message":"ConfigHostModule dependencies initialized","timestamp":"2025-08-05T02:28:44.483Z"}
+{"level":"info","message":"ConfigModule dependencies initialized","timestamp":"2025-08-05T02:28:44.483Z"}
+{"level":"info","message":"TypeOrmCoreModule dependencies initialized","timestamp":"2025-08-05T02:28:44.498Z"}
+{"level":"info","message":"Starting Nest application...","timestamp":"2025-08-05T02:29:00.026Z"}
+{"level":"info","message":"TypeOrmModule dependencies initialized","timestamp":"2025-08-05T02:29:00.039Z"}
+{"level":"info","message":"PassportModule dependencies initialized","timestamp":"2025-08-05T02:29:00.039Z"}
+{"level":"info","message":"JwtModule dependencies initialized","timestamp":"2025-08-05T02:29:00.039Z"}
+{"level":"info","message":"AppModule dependencies initialized","timestamp":"2025-08-05T02:29:00.039Z"}
+{"level":"info","message":"ConfigHostModule dependencies initialized","timestamp":"2025-08-05T02:29:00.040Z"}
+{"level":"info","message":"ConfigModule dependencies initialized","timestamp":"2025-08-05T02:29:00.040Z"}
+{"level":"info","message":"TypeOrmCoreModule dependencies initialized","timestamp":"2025-08-05T02:29:00.055Z"}
