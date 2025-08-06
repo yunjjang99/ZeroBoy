@@ -1,14 +1,15 @@
 {
   "name": "zeroboy-frontend",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "ZeroBoy desktop frontend for hedging and arbitrage crypto bot",
   "main": "dist-electron/main.js",
   "scripts": {
-    "dev": "vite",
-    "dev:web": "vite --mode web",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "electron": "wait-on tcp:5173 && electron .",
+    "dev": "webpack serve --mode development",
+    "dev:web": "webpack serve --mode development --env web",
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "preview": "serve dist",
+    "electron": "wait-on tcp:3000 && electron .",
     "electron:dev": "concurrently \"npm run dev\" \"npm run electron\"",
     "electron:build": "npm run build && electron-builder",
     "electron:preview": "npm run build && electron ."
@@ -35,27 +36,38 @@
     "i18next": "^23.16.8",
     "lightweight-charts": "^5.0.8",
     "lucide-react": "^0.294.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-i18next": "^13.5.0",
-    "react-router-dom": "^7.7.1",
+    "react-router-dom": "^6.20.1",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
-    "@types/react": "^19.1.9",
-    "@types/react-dom": "^19.1.7",
-    "@vitejs/plugin-react": "^4.2.1",
-    "autoprefixer": "^10.4.16",
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "babel-loader": "^9.2.1",
     "concurrently": "^8.2.2",
+    "css-loader": "^6.11.0",
     "electron": "^37.2.5",
     "electron-builder": "^24.9.1",
+    "html-webpack-plugin": "^5.6.3",
+    "mini-css-extract-plugin": "^2.9.3",
     "postcss": "^8.4.32",
+    "postcss-loader": "^8.1.1",
+    "serve": "^14.2.4",
+    "style-loader": "^3.3.4",
     "tailwindcss": "^3.3.6",
+    "ts-loader": "^9.5.2",
     "typescript": "^5.2.2",
-    "vite": "^5.0.8",
-    "vite-plugin-electron": "^0.15.5",
-    "vite-plugin-electron-renderer": "^0.14.5",
-    "wait-on": "^7.2.0"
+    "wait-on": "^7.2.0",
+    "webpack": "^5.101.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.2.2",
+    "webpack-merge": "^5.10.0"
   },
   "build": {
     "appId": "com.zeroboy.app",
@@ -68,8 +80,7 @@
       "dist-electron/**/*",
       "../backend/dist/**/*",
       "../backend/data/**/*",
-      "../backend/package.json",
-      "node_modules/**/*"
+      "../backend/package.json"
     ],
     "extraResources": [
       {
@@ -85,8 +96,8 @@
         "to": "backend/package.json"
       },
       {
-        "from": "../backend/node_modules",
-        "to": "backend/node_modules"
+        "from": "backend-deps-complete",
+        "to": "backend"
       }
     ],
     "mac": {

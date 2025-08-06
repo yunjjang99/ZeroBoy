@@ -1,7 +1,9 @@
 // API 설정
 export const API_CONFIG = {
   // 전역 환경변수에서 API BASE URL 가져오기
-  BASE_URL: __API_BASE_URL__ || "http://localhost:7777",
+  BASE_URL: (typeof __API_BASE_URL__ !== "undefined"
+    ? __API_BASE_URL__
+    : "http://localhost:7778") as string,
 
   // API 엔드포인트들
   ENDPOINTS: {

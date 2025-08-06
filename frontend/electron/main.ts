@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
-import { spawn, ChildProcess } from "child_process";
+import { fork, ChildProcess } from "child_process";
 import * as fs from "fs";
 
 let backendProcess: ChildProcess | null = null;
@@ -18,7 +18,6 @@ if (!gotTheLock) {
 // 백엔드 서버 시작
 function startBackendServer(): Promise<void> {
   return new Promise((resolve, reject) => {
-    // 개발 모드와 프로덕션 모드에서 다른 경로 사용
     const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
     const backendPath = isDev
       ? path.join(__dirname, "../../backend/dist/src/main.js")
@@ -30,7 +29,6 @@ function startBackendServer(): Promise<void> {
     console.log(`   - backendPath: ${backendPath}`);
     console.log(`   - resourcesPath: ${(process as any).resourcesPath}`);
 
-    // 백엔드 빌드 파일이 있는지 확인
     if (!fs.existsSync(backendPath)) {
       console.error(`❌ Backend build not found at: ${backendPath}`);
       reject(new Error(`Backend build not found at: ${backendPath}`));
@@ -39,87 +37,115 @@ function startBackendServer(): Promise<void> {
 
     console.log(`✅ Backend build found at: ${backendPath}`);
 
-    // 백엔드 서버 시작
-    const nodePath = process.platform === "win32" ? "node.exe" : "node"; // 시스템 Node.js 사용
     const backendDir = path.dirname(backendPath);
-    const nodeModulesPath = path.join(path.dirname(backendDir), "node_modules");
 
     console.log(`🚀 Starting backend server:`);
-    console.log(`   - nodePath: ${nodePath}`);
     console.log(`   - backendDir: ${backendDir}`);
-    console.log(`   - nodeModulesPath: ${nodeModulesPath}`);
 
     // 환경 변수 설정
+    // 백엔드 node_modules 경로 설정
+    const nodeModulesPath = isDev
+      ? path.join(__dirname, "../../backend/node_modules")
+      : path.join((process as any).resourcesPath, "backend/node_modules");
+
     const env = {
       ...process.env,
       NODE_ENV: "production",
-      PORT: "7778", // 다른 포트 사용
-      BACKEND_PORT: "7778", // 백엔드 포트도 설정
+      PORT: "7777",
+      BACKEND_PORT: "7777",
       ELECTRON_IS_DEV: "false",
-      // SQLite 데이터베이스 경로 설정
       DB_PATH: path.join(backendDir, "data/db.sqlite"),
+      NODE_PATH: nodeModulesPath,
     };
 
     console.log(`🔧 Environment variables:`, env);
+    console.log(`🔍 Debug paths:`);
+    console.log(`   - Backend dir: ${backendDir}`);
+    console.log(`   - Node modules path: ${nodeModulesPath}`);
+    console.log(`   - Node modules exists: ${fs.existsSync(nodeModulesPath)}`);
+    console.log(`   - Backend main.js exists: ${fs.existsSync(backendPath)}`);
 
-    backendProcess = spawn(nodePath, [backendPath], {
-      stdio: "pipe",
-      cwd: backendDir, // 백엔드 디렉토리를 작업 디렉토리로 설정
+    backendProcess = fork(backendPath, {
+      cwd: backendDir,
+      stdio: ["ignore", "pipe", "pipe", "ipc"],
       env: env,
-      // 프로세스 그룹 설정으로 자식 프로세스들이 함께 종료되도록 함
       detached: false,
     });
 
-    backendProcess.stdout?.on("data", (data) => {
-      console.log(`📡 Backend stdout: ${data}`);
-      if (data.toString().includes("Application is running on")) {
-        console.log(`✅ Backend server started successfully`);
-        resolve();
-      } else if (
-        data.toString().includes("Another instance is already running")
-      ) {
-        console.log(
-          `⚠️ Backend server already running, checking connection...`
-        );
-        // 백엔드가 이미 실행 중이면 연결 확인
-        setTimeout(() => {
-          console.log(`✅ Backend server is already running and accessible`);
+    if (backendProcess) {
+      backendProcess.stdout?.on("data", (data) => {
+        const output = data.toString().trim();
+        console.log(`📡 Backend stdout: ${output}`);
+
+        if (output.includes("Application is running on")) {
+          console.log(`✅ Backend server started successfully`);
           resolve();
-        }, 2000);
-      }
-    });
+        } else if (output.includes("Another instance is already running")) {
+          console.log(
+            `⚠️ Backend server already running, checking connection...`
+          );
+          // 백엔드가 이미 실행 중이면 연결 확인
+          setTimeout(() => {
+            console.log(`✅ Backend server is already running and accessible`);
+            resolve();
+          }, 2000);
+        } else if (output.includes("Nest application successfully started")) {
+          console.log(`✅ NestJS application started successfully`);
+          resolve();
+        }
+      });
 
-    backendProcess.stderr?.on("data", (data) => {
-      console.error(`❌ Backend stderr: ${data}`);
-    });
+      backendProcess.stderr?.on("data", (data) => {
+        const error = data.toString().trim();
+        console.error(`❌ Backend stderr: ${error}`);
 
-    backendProcess.on("error", (error) => {
-      console.error("❌ Failed to start backend:", error);
-      reject(error);
-    });
+        // 모듈을 찾지 못하는 오류인 경우 더 자세한 정보 출력
+        if (error.includes("Cannot find module")) {
+          console.error(`🔍 Module resolution error detected.`);
+          console.error(`   - Current working directory: ${backendDir}`);
+          console.error(`   - NODE_PATH: ${nodeModulesPath}`);
+          console.error(
+            `   - Node modules exists: ${fs.existsSync(nodeModulesPath)}`
+          );
+        }
+      });
 
-    backendProcess.on("exit", (code) => {
-      console.log(`🔄 Backend process exited with code ${code}`);
-      if (code === 0) {
-        // 정상 종료인 경우 (이미 실행 중)
-        console.log(`✅ Backend server is already running`);
-        resolve();
-      } else {
-        console.error(`❌ Backend process exited with error code: ${code}`);
-        reject(new Error(`Backend process exited with code ${code}`));
-      }
-    });
+      backendProcess.on("error", (error) => {
+        console.error("❌ Failed to start backend:", error);
+        reject(error);
+      });
 
-    // 15초 타임아웃 (더 긴 시간으로 증가)
-    setTimeout(() => {
-      if (backendProcess && !backendProcess.killed) {
-        console.log(`⏰ Backend startup timeout, but process is running`);
-        resolve(); // 타임아웃이지만 백엔드가 실행 중이면 성공으로 처리
-      } else {
-        console.error(`❌ Backend startup timeout and process is not running`);
-        reject(new Error("Backend startup timeout"));
-      }
-    }, 15000);
+      backendProcess.on("exit", (code) => {
+        console.log(`🔄 Backend process exited with code ${code}`);
+        if (code === 0) {
+          // 정상 종료인 경우 (이미 실행 중)
+          console.log(`✅ Backend server is already running`);
+          resolve();
+        } else if (code === 1) {
+          // 종료 코드 1은 보통 "Another instance is already running" 메시지와 함께 발생
+          console.log(`⚠️ Backend server already running (exit code: ${code})`);
+          resolve();
+        } else {
+          console.error(`❌ Backend process exited with error code: ${code}`);
+          reject(new Error(`Backend process exited with code ${code}`));
+        }
+      });
+
+      // 15초 타임아웃
+      setTimeout(() => {
+        if (backendProcess && !backendProcess.killed) {
+          console.log(`⏰ Backend startup timeout, but process is running`);
+          resolve();
+        } else {
+          console.error(
+            `❌ Backend startup timeout and process is not running`
+          );
+          reject(new Error("Backend startup timeout"));
+        }
+      }, 15000);
+    } else {
+      reject(new Error("Failed to create backend process"));
+    }
   });
 }
 
@@ -160,7 +186,6 @@ function stopBackendServer() {
 }
 
 function createWindow() {
-  // 기존 윈도우가 있으면 정리
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.close();
   }
@@ -177,23 +202,19 @@ function createWindow() {
     },
   });
 
-  // 윈도우가 닫힐 때 mainWindow 참조 정리
   mainWindow.on("closed", () => {
     console.log(`🪟 Main window closed`);
     mainWindow = null;
   });
 
-  // 페이지 로딩 시작
   mainWindow.webContents.on("did-start-loading", () => {
     console.log(`📄 Page loading started`);
   });
 
-  // 페이지 로딩 완료
   mainWindow.webContents.on("did-finish-load", () => {
     console.log(`✅ Page loading finished`);
   });
 
-  // 페이지 로딩 실패
   mainWindow.webContents.on(
     "did-fail-load",
     (event, errorCode, errorDescription, validatedURL) => {
@@ -205,33 +226,29 @@ function createWindow() {
     }
   );
 
-  // dev 서버에서 열기 (vite dev)
-  if (process.env.VITE_DEV_SERVER_URL) {
-    console.log(
-      `🔗 Loading from dev server: ${process.env.VITE_DEV_SERVER_URL}`
-    );
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+  // 개발 모드에서는 dev server에서 로드
+  if (process.env.NODE_ENV === "development") {
+    console.log(`🔗 Loading from dev server: http://localhost:3000`);
+    mainWindow.loadURL("http://localhost:3000");
     mainWindow.webContents.openDevTools();
   } else {
     const indexPath = path.join(__dirname, "../dist/index.html");
     console.log(`📁 Loading from file: ${indexPath}`);
     console.log(`📁 File exists: ${fs.existsSync(indexPath)}`);
-
-    // HashRouter 사용으로 loadFile 사용
     mainWindow.loadFile(indexPath);
-
-    // 프로덕션에서도 DevTools 열기 (디버깅용)
     mainWindow.webContents.openDevTools();
-  }
 
-  // 개발 모드가 아닐 때만 DevTools 숨기기 - 일시적으로 주석 처리
-  // if (!process.env.VITE_DEV_SERVER_URL) {
-  //   mainWindow?.webContents.on("devtools-opened", () => {
-  //     if (mainWindow && !mainWindow.isDestroyed()) {
-  //       mainWindow.webContents.closeDevTools();
-  //     }
-  //   });
-  // }
+    // 프로덕션에서도 콘솔 로그를 터미널에 출력
+    mainWindow.webContents.on(
+      "console-message",
+      (event, level, message, line, sourceId) => {
+        const levels = ["log", "info", "warn", "error"];
+        console.log(
+          `[Renderer ${levels[level]}] ${message} (${sourceId}:${line})`
+        );
+      }
+    );
+  }
 }
 
 app.whenReady().then(async () => {
@@ -244,7 +261,8 @@ app.whenReady().then(async () => {
     createWindow();
   } catch (error) {
     console.error("Failed to start backend server:", error);
-    app.quit();
+    // 백엔드 시작 실패해도 앱은 계속 실행 (백엔드가 이미 실행 중일 수 있음)
+    createWindow();
   }
 
   app.on("activate", () => {
@@ -257,19 +275,14 @@ app.whenReady().then(async () => {
   });
 });
 
-// 두 번째 인스턴스 실행 시 기존 창 포커스
 app.on("second-instance", () => {
   if (mainWindow && !mainWindow.isDestroyed()) {
-    // 기존 창이 최소화되어 있으면 복원
     if (mainWindow.isMinimized()) {
       mainWindow.restore();
     }
-    // 기존 창을 앞으로 가져오기
     mainWindow.focus();
-    // macOS에서 Dock 아이콘 클릭 시 창 표시
     mainWindow.show();
   } else {
-    // mainWindow가 없거나 파괴된 경우 새로 생성
     createWindow();
   }
 });
@@ -283,17 +296,14 @@ app.on("before-quit", () => {
   stopBackendServer();
 });
 
-// 앱 종료 시 모든 프로세스 정리
 app.on("will-quit", () => {
   stopBackendServer();
 });
 
-// 예기치 않은 종료 시에도 정리
 process.on("exit", () => {
   stopBackendServer();
 });
 
-// 프로세스 종료 시 백엔드도 함께 종료
 process.on("SIGINT", () => {
   stopBackendServer();
   app.quit();
