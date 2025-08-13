@@ -1,101 +1,104 @@
+// src/utils/logUtil.ts
 import { createLogger, format, transports } from "winston";
-const DailyRotateFile = require("winston-daily-rotate-file");
-const { LogstashTransport } = require("winston-logstash-transport");
+import DailyRotateFile from "winston-daily-rotate-file"; // require도 가능
+import type { TransformableInfo } from "logform";
+import * as fs from "fs";
+import * as path from "path";
+// import { LogstashTransport } from "winston-logstash-transport"; // 필요시 주석 해제
 
 export const formatLog = (
   message: string,
   level: "INFO" | "ERROR" | "DEBUG",
   timestamp: Date = new Date()
-): string => {
-  return `[${level}] - ${timestamp.toISOString()}: ${message}`;
-};
+): string => `[${level}] - ${timestamp.toISOString()}: ${message}`;
 
-// 개발 환경 여부 확인
-const isDev = process.env.IS_DEV;
-const logstashHost = isDev ? "127.0.0.1" : process.env.LOGSTASH_HOST;
-const logstashPort = isDev ? process.env.LOGSTASH_PORT : 5044;
+// 개발 여부
+const isDev = process.env.IS_DEV === "true";
 
-// 'isSuccess'가 포함된 메시지를 필터링하는 custom format
-const filterIsSuccessLogs = format((info) => {
-  if (info.message.includes("method") && info.message.includes("url")) {
-    return false; // 필터링하여 이 로그는 출력하지 않음
+// 패키징 환경에서 리소스/유저데이터 경로 받는다면(일렉트론 메인에서 env로 전달)
+const ELECTRON_USER_DATA = process.env.ELECTRON_USER_DATA;
+
+// ✅ 로그 디렉터리: 패키징 후에도 쓰기 가능한 위치로
+const LOG_DIR =
+  process.env.LOG_DIR ||
+  (ELECTRON_USER_DATA
+    ? path.join(ELECTRON_USER_DATA, "logs")
+    : path.join(process.cwd(), "logs"));
+
+fs.mkdirSync(LOG_DIR, { recursive: true });
+
+// ✅ 특정 메시지(예: HTTP access log) 필터
+const filterIsSuccessLogs = format((info: TransformableInfo) => {
+  // message를 문자열로 정규화
+  const raw = info.message;
+  const msg =
+    typeof raw === "string"
+      ? raw
+      : raw == null
+        ? ""
+        : typeof raw === "object"
+          ? JSON.stringify(raw)
+          : String(raw);
+
+  // 여기서 필터링 조건 적용
+  if (msg.includes("method") && msg.includes("url")) {
+    return false; // drop
   }
-  return info; // 필터링되지 않은 경우, 계속해서 처리
+
+  info.message = msg;
+  return info;
 });
 
-// Winston 로그 설정
 export const logger = createLogger({
-  level: "info", // 기본 로그 레벨 설정
-  format: format.combine(
-    format.timestamp(),
-    format.json() // JSON 형식으로 로그 기록
-  ),
+  level: "info",
+  format: format.combine(format.timestamp(), format.json()),
   transports: [
-    // 일반 로그 파일 (날짜별 회전)
+    // 회전 로그 (info 이상)
     new DailyRotateFile({
-      filename: "logs/application-%DATE%.log", // 날짜별 파일 생성
+      filename: path.join(LOG_DIR, "application-%DATE%.log"),
       datePattern: "YYYY-MM-DD",
       maxSize: "20m",
       maxFiles: "14d",
-      level: "info", // info 이상의 로그를 파일에 저장
+      level: "info",
+      zippedArchive: true,
     }),
-    // 에러 로그 파일 (에러 전용)
+    // 에러 로그
     new transports.File({
-      filename: "logs/error.log",
-      level: "error", // error 레벨 이상의 로그만 기록
+      filename: path.join(LOG_DIR, "error.log"),
+      level: "error",
     }),
-    // 콘솔 출력 (명시적 console.log 및 error 로그 처리)
+    // 콘솔(에러만)
     new transports.Console({
-      level: "error", // error 레벨 이상의 로그만 출력
-      format: format.combine(
-        format.colorize(),
-        format.simple() // 간단한 포맷으로 출력
-      ),
+      level: "error",
+      format: format.combine(format.colorize(), format.simple()),
     }),
-    // info 로그 처리 (isSuccess 필터링 이후 출력)
+    // info 로그 필터(터미널 미표시)
     new transports.Console({
-      level: "info", // info 레벨 이상의 로그만 출력
+      level: "info",
       format: format.combine(
         filterIsSuccessLogs(),
         format.timestamp(),
-        format.json() // JSON 형식으로 로그 기록
+        format.json()
       ),
-      silent: true, // 터미널에 출력하지 않도록 설정
-      // format: format.combine(
-      //   format.colorize(),
-      //   format.printf(({ level, message, timestamp }) => {
-      //     // 터미널에 출력할 로그 포맷 설정
-      //     return `[${level}] ${timestamp}: ${message} (from console.log)`;
-      //   })
-      // ),
+      silent: true,
     }),
-    // Logstash 연동 (개발 환경과 배포 환경 모두)
+
+    // Logstash 사용 시
     // new LogstashTransport({
-    //   host: logstashHost,
-    //   port: logstashPort,
+    //   host: isDev ? "127.0.0.1" : process.env.LOGSTASH_HOST,
+    //   port: Number(process.env.LOGSTASH_PORT ?? 5044),
     //   protocol: "tcp",
-    //   level: "info", // info 레벨 이상의 로그는 Logstash로 전송
-    //   handleExceptions: true, // 예외 처리
+    //   level: "info",
+    //   handleExceptions: true,
     //   onError: (err) => console.error("LogstashTransport error:", err),
     // }),
   ],
 });
+
+// 호출 함수명 유틸
 export function getCallerFunctionName(): string {
-  const stack = new Error().stack; // 호출 스택 가져오기
-  if (!stack) return "unknown_function";
-
-  const stackLines = stack.split("\n");
-
-  // 스택에서 3번째 라인이 호출된 함수의 위치를 나타냄 (Node.js 환경 기준)
-  // 브라우저 환경에서는 이 인덱스를 조정해야 할 수도 있음
-  const callerLine = stackLines[3];
-
-  if (!callerLine) {
-    return "unknown_function";
-  }
-
-  // 함수 이름을 추출 (일반적으로 형식은 'at 함수명 (파일 경로)')
-  const match = callerLine.match(/at\s+(.*)\s+\(/);
-
+  const stack = new Error().stack ?? "";
+  const line = stack.split("\n")[3] || "";
+  const match = line.match(/at\s+(.+?)\s+\(/);
   return match ? match[1] : "unknown_function";
 }

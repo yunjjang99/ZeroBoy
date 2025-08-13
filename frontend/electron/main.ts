@@ -48,13 +48,23 @@ function startBackendServer(): Promise<void> {
       ? path.join(__dirname, "../../backend/node_modules")
       : path.join((process as any).resourcesPath, "backend/node_modules");
 
+    // SQLite 데이터베이스 경로 설정
+    let dbPath: string;
+    if (isDev) {
+      // 개발 모드: 프로젝트 루트의 data/db 디렉토리
+      dbPath = path.join(__dirname, "../../data/db/db.sqlite");
+    } else {
+      // 프로덕션 모드: Electron resources의 data/db 디렉토리
+      dbPath = path.join((process as any).resourcesPath, "data/db/db.sqlite");
+    }
+
     const env = {
       ...process.env,
-      NODE_ENV: "production",
+      NODE_ENV: isDev ? "development" : "production",
       PORT: "7777",
       BACKEND_PORT: "7777",
-      ELECTRON_IS_DEV: "false",
-      DB_PATH: path.join(backendDir, "data/db.sqlite"),
+      ELECTRON_IS_DEV: isDev ? "true" : "false",
+      DB_PATH: dbPath,
       NODE_PATH: nodeModulesPath,
     };
 
@@ -62,8 +72,17 @@ function startBackendServer(): Promise<void> {
     console.log(`🔍 Debug paths:`);
     console.log(`   - Backend dir: ${backendDir}`);
     console.log(`   - Node modules path: ${nodeModulesPath}`);
+    console.log(`   - Database path: ${dbPath}`);
     console.log(`   - Node modules exists: ${fs.existsSync(nodeModulesPath)}`);
     console.log(`   - Backend main.js exists: ${fs.existsSync(backendPath)}`);
+    console.log(`   - Database directory exists: ${fs.existsSync(path.dirname(dbPath))}`);
+
+    // 데이터베이스 디렉토리가 없으면 생성
+    const dbDir = path.dirname(dbPath);
+    if (!fs.existsSync(dbDir)) {
+      console.log(`📁 Creating database directory: ${dbDir}`);
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
 
     backendProcess = fork(backendPath, {
       cwd: backendDir,

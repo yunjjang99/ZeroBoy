@@ -63,6 +63,7 @@
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-real-browser": "^1.4.2",
     "redlock": "^5.0.0-beta.2",
+    "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
     "sqlite3": "^5.1.7",
     "typeorm": "^0.3.20",
