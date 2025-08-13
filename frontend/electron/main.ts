@@ -75,7 +75,9 @@ function startBackendServer(): Promise<void> {
     console.log(`   - Database path: ${dbPath}`);
     console.log(`   - Node modules exists: ${fs.existsSync(nodeModulesPath)}`);
     console.log(`   - Backend main.js exists: ${fs.existsSync(backendPath)}`);
-    console.log(`   - Database directory exists: ${fs.existsSync(path.dirname(dbPath))}`);
+    console.log(
+      `   - Database directory exists: ${fs.existsSync(path.dirname(dbPath))}`
+    );
 
     // 데이터베이스 디렉토리가 없으면 생성
     const dbDir = path.dirname(dbPath);

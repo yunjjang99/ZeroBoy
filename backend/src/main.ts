@@ -12,13 +12,13 @@ async function bootstrap() {
 
   // 환경 변수 로깅
   console.log("🔧 Environment Configuration:");
-  console.log(`   - NODE_ENV: ${process.env.NODE_ENV || "development"}`);
+  console.log(`   - NODE_ENV: ${process.env.NODE_ENV}`);
   console.log(
     `   - ELECTRON_IS_DEV: ${process.env.ELECTRON_IS_DEV || "false"}`
   );
-  console.log(`   - BACKEND_PORT: ${process.env.BACKEND_PORT || "7777"}`);
-  console.log(`   - DB_PATH: ${process.env.DB_PATH || "not set"}`);
-  console.log(`   - NODE_PATH: ${process.env.NODE_PATH || "not set"}`);
+  console.log(`   - BACKEND_PORT: ${process.env.BACKEND_PORT}`);
+  console.log(`   - DB_PATH: ${process.env.DB_PATH}`);
+  console.log(`   - NODE_PATH: ${process.env.NODE_PATH}`);
   console.log(
     `   - Resources Path: ${(process as any).resourcesPath || "not set"}`
   );

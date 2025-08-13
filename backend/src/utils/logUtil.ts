@@ -1,9 +1,11 @@
 // src/utils/logUtil.ts
 import { createLogger, format, transports } from "winston";
-import DailyRotateFile from "winston-daily-rotate-file"; // require도 가능
 import type { TransformableInfo } from "logform";
 import * as fs from "fs";
 import * as path from "path";
+
+// CommonJS 모듈을 위한 require 방식 사용
+const DailyRotateFile = require("winston-daily-rotate-file");
 // import { LogstashTransport } from "winston-logstash-transport"; // 필요시 주석 해제
 
 export const formatLog = (
