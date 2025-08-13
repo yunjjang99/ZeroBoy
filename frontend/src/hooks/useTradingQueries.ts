@@ -28,6 +28,16 @@ type UpdateTradingPairVars = {
 
 type DeleteTradingPairVars = string;
 
+type DeleteTradingPairResponse = {
+  isSuccess: boolean;
+  statusCode: number;
+  message: string;
+  timestamp: string;
+  path: string;
+  method: string;
+  data: { message: string };
+};
+
 type ActivateVars = {
   id: string;
   exchangeAUrl: string;
@@ -236,8 +246,8 @@ const tradingApi = {
     return response.json();
   },
 
-  // 거래 페어 삭제
-  deleteTradingPair: async (id: string): Promise<void> => {
+  // 거래 페어 삭제 (연결된 브라우저 정보도 함께 삭제)
+  deleteTradingPair: async (id: string): Promise<DeleteTradingPairResponse> => {
     const response = await fetch(
       createApiUrl(`${API_CONFIG.ENDPOINTS.TRADING.PAIRS}/${id}`),
       {
@@ -248,6 +258,7 @@ const tradingApi = {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || "Failed to delete trading pair");
     }
+    return response.json();
   },
 
   // 브라우저 계정 정보 갱신
@@ -549,7 +560,7 @@ export const useUpdateTradingPair = () => {
 export const useDeleteTradingPair = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, DeleteTradingPairVars>({
+  return useMutation<DeleteTradingPairResponse, Error, DeleteTradingPairVars>({
     mutationFn: tradingApi.deleteTradingPair,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["trading-pairs"] });

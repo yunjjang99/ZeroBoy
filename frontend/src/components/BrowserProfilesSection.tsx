@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { Plus, Globe, Loader2, AlertCircle, Link } from 'lucide-react'
 import { BrowserProfileCard } from './BrowserProfileCard'
-import { useTradingPairsWithBrowserProfiles, useLaunchBrowser, useReopenBrowser, useDeleteProfile, useBrowserStatuses } from '../hooks/useBrowserQueries'
+import { useTradingPairsWithBrowserProfiles, useLaunchBrowser, useReopenBrowser, useBrowserStatuses } from '../hooks/useBrowserQueries'
+import { useDeleteTradingPair } from '../hooks/useTradingQueries'
 import { useAlert } from '../contexts/AlertContext'
 import UrlInputModal from './UrlInputModal'
 import { useQueryClient } from '@tanstack/react-query'
@@ -18,7 +19,7 @@ const BrowserProfilesSection: React.FC = () => {
     const { data: browserStatusesData = { count: 0, statuses: [] } } = useBrowserStatuses()
     const launchBrowserMutation = useLaunchBrowser()
     const reopenBrowserMutation = useReopenBrowser()
-    const deleteProfileMutation = useDeleteProfile()
+    const deleteTradingPairMutation = useDeleteTradingPair()
 
     // Alert 시스템 사용
     const { showAlert, showConfirm, showToast } = useAlert()
@@ -81,7 +82,7 @@ const BrowserProfilesSection: React.FC = () => {
     const handleDeleteProfile = async (pairId: string) => {
         showConfirm('정말로 이 거래 페어를 삭제하시겠습니까? 브라우저 쌍도 함께 삭제됩니다.', async () => {
             try {
-                await deleteProfileMutation.mutateAsync(pairId)
+                await deleteTradingPairMutation.mutateAsync(pairId)
                 showToast('거래 페어가 삭제되었습니다.', {
                     type: 'success',
                     title: '성공',
@@ -146,19 +147,6 @@ const BrowserProfilesSection: React.FC = () => {
                     <Link className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500 dark:text-blue-400" />
                     <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">거래 페어 브라우저 관리</h2>
                 </div>
-                {/* <button
-                    onClick={() => setShowUrlModal(true)}
-                    disabled={creating || launchBrowserMutation.isPending}
-                    className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-lg transition-colors text-sm sm:text-base"
-                >
-                    {(creating || launchBrowserMutation.isPending) ? (
-                        <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                    ) : (
-                        <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
-                    )}
-                    <span className="hidden sm:inline">새 브라우저 생성</span>
-                    <span className="sm:hidden">새 브라우저</span>
-                </button> */}
             </div>
 
             {pairs.length === 0 ? (

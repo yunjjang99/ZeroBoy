@@ -6,6 +6,7 @@ import { TradingCoin, PositionType } from "./entities/trading-coin.entity";
 import { CreateTradingPairDto } from "./dto/create-trading-pair.dto";
 import { CreateTradingCoinDto } from "./dto/create-trading-coin.dto";
 import { PuppeteerService } from "../puppeteer/puppeteer.service";
+import { FingerprintService } from "../fingerprint/fingerprint.service";
 import { Exchange } from "../enums/enum";
 
 @Injectable()
@@ -15,7 +16,8 @@ export class TradingService {
     private tradingPairRepository: Repository<TradingPair>,
     @InjectRepository(TradingCoin)
     private tradingCoinRepository: Repository<TradingCoin>,
-    private puppeteerService: PuppeteerService
+    private puppeteerService: PuppeteerService,
+    private fingerprintService: FingerprintService
   ) {}
 
   // 거래 페어 생성
@@ -68,8 +70,39 @@ export class TradingService {
     return await this.getTradingPairById(id);
   }
 
-  // 거래 페어 삭제
+  // 거래 페어 삭제 (연결된 브라우저 정보도 함께 삭제)
   async deleteTradingPair(id: string): Promise<void> {
+    // 먼저 페어 정보를 조회하여 연결된 브라우저 UUID 확인
+    const tradingPair = await this.tradingPairRepository.findOne({
+      where: { id },
+      select: ["id", "browserAUuid", "browserBUuid"],
+    });
+
+    if (!tradingPair) {
+      throw new NotFoundException(`Trading pair with ID ${id} not found`);
+    }
+
+    // 연결된 브라우저 정보 삭제
+    const deletePromises: Promise<boolean>[] = [];
+
+    if (tradingPair.browserAUuid) {
+      deletePromises.push(
+        this.fingerprintService.deleteFingerprint(tradingPair.browserAUuid)
+      );
+    }
+
+    if (tradingPair.browserBUuid) {
+      deletePromises.push(
+        this.fingerprintService.deleteFingerprint(tradingPair.browserBUuid)
+      );
+    }
+
+    // 브라우저 정보 삭제 실행
+    if (deletePromises.length > 0) {
+      await Promise.all(deletePromises);
+    }
+
+    // 거래 페어 삭제
     const result = await this.tradingPairRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Trading pair with ID ${id} not found`);
@@ -314,12 +347,15 @@ export class TradingService {
     createDto: CreateTradingPairDto,
     exchangeAUrl: string,
     exchangeBUrl: string,
-    accountInfo?: Record<string, { accountId: string; memo: string }>
+    accountInfo: Record<string, { accountId: string; memo: string }>
   ): Promise<TradingPair> {
     try {
       // 기존 활성 페어들을 모두 비활성화
       await this.deactivateAllActivePairs();
 
+      console.log(accountInfo, "accountInfo");
+      console.log(accountInfo, "accountInfo");
+      console.log(accountInfo, "accountInfo");
       // accountInfo 키 매핑 (거래소 이름 -> Exchange enum)
       const exchangeNameMapping: Record<string, string> = {
         OrangeX: "orangex",
@@ -487,8 +523,6 @@ export class TradingService {
 
         // 페어 상태 업데이트
         await this.updateTradingPair(pair.id, {
-          browserAUuid: null,
-          browserBUuid: null,
           status: PairStatus.INACTIVE,
           isActive: false,
         });

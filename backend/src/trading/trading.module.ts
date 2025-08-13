@@ -5,11 +5,13 @@ import { TradingService } from "./trading.service";
 import { TradingPair } from "./entities/trading-pair.entity";
 import { TradingCoin } from "./entities/trading-coin.entity";
 import { PuppeteerModule } from "../puppeteer/puppeteer.module";
+import { FingerprintModule } from "../fingerprint/fingerprint.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([TradingPair, TradingCoin]),
     PuppeteerModule,
+    FingerprintModule,
   ],
   controllers: [TradingController],
   providers: [TradingService],

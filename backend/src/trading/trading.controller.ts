@@ -61,7 +61,7 @@ export class TradingController {
       createDto: CreateTradingPairDto;
       exchangeAUrl: string;
       exchangeBUrl: string;
-      accountInfo?: Record<string, { accountId: string; memo: string }>;
+      accountInfo: Record<string, { accountId: string; memo: string }>;
     }
   ): Promise<TradingPair> {
     return await this.tradingService.createTradingPairWithBrowsers(
@@ -87,11 +87,14 @@ export class TradingController {
     return await this.tradingService.updateTradingPair(id, updateData);
   }
 
-  // 거래 페어 삭제
+  // 거래 페어 삭제 (연결된 브라우저 정보도 함께 삭제)
   @Delete("pairs/:id")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteTradingPair(@Param("id") id: string): Promise<void> {
-    return await this.tradingService.deleteTradingPair(id);
+  @HttpCode(HttpStatus.OK)
+  async deleteTradingPair(@Param("id") id: string) {
+    await this.tradingService.deleteTradingPair(id);
+    return success({
+      message: "페어와 연결된 브라우저 정보가 성공적으로 삭제되었습니다.",
+    });
   }
 
   // 거래 페어 활성화 (브라우저 쌍 생성)

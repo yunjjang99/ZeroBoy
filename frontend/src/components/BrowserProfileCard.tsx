@@ -33,7 +33,7 @@ interface BrowserProfileCardProps {
     pair: TradingPairWithBrowserProfiles;
     browserStatuses?: BrowserStatus[];
     onReopen?: (uuid: string) => void;
-    onDelete?: (uuid: string) => void;
+    onDelete?: (pairId: string) => void; // 페어 ID를 받아서 페어와 연결된 브라우저 정보를 함께 삭제
 }
 
 export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
@@ -167,7 +167,7 @@ export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
                 <button
                     onClick={() => onDelete?.(pair.pairId)}
                     className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                    title="페어 삭제"
+                    title="페어 및 연결된 브라우저 정보 삭제"
                 >
                     <Trash2 className="h-4 w-4" />
                 </button>
