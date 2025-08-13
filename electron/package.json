@@ -55,13 +55,13 @@
     ],
     "asar": true,
     "win": {
-      "icon": "resources/zeroboy.ico",
+      "icon": "resources/zeroboy.png",
       "target": [
         "nsis"
       ]
     },
     "mac": {
-      "icon": "resources/zeroboy.icns",
+      "icon": "resources/zeroboy.png",
       "category": "public.app-category.finance",
       "target": "dmg"
     },
@@ -73,9 +73,9 @@
       "oneClick": false,
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true,
-      "installerIcon": "resources/zeroboy.ico",
-      "uninstallerIcon": "resources/zeroboy.ico",
-      "installerHeaderIcon": "resources/zeroboy.ico",
+      "installerIcon": "resources/zeroboy.png",
+      "uninstallerIcon": "resources/zeroboy.png",
+      "installerHeaderIcon": "resources/zeroboy.png",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
     }
