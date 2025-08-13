@@ -5,7 +5,7 @@ import * as fs from "fs";
 
 let backendProcess: ChildProcess | null = null;
 let mainWindow: BrowserWindow | null = null;
-
+const isDev = require("electron-is-dev");
 // 단일 인스턴스 강제 설정
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -18,14 +18,16 @@ if (!gotTheLock) {
 // 백엔드 서버 시작
 function startBackendServer(): Promise<void> {
   return new Promise((resolve, reject) => {
-    const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
-    const backendPath = isDev
-      ? path.join(__dirname, "../../backend/dist/src/main.js")
-      : path.join((process as any).resourcesPath, "backend/dist/src/main.js");
+    const backendPath = path.join(
+      __dirname,
+      "../..",
+      "backend/dist/src/main.js"
+    );
 
     console.log(`🔍 Debug Info:`);
-    console.log(`   - isDev: ${isDev}`);
     console.log(`   - app.isPackaged: ${app.isPackaged}`);
+    console.log(`   - __dirname: ${__dirname}`);
+    console.log(`   - process.cwd(): ${process.cwd()}`);
     console.log(`   - backendPath: ${backendPath}`);
     console.log(`   - resourcesPath: ${(process as any).resourcesPath}`);
 
@@ -44,19 +46,22 @@ function startBackendServer(): Promise<void> {
 
     // 환경 변수 설정
     // 백엔드 node_modules 경로 설정
-    const nodeModulesPath = isDev
-      ? path.join(__dirname, "../../backend/node_modules")
-      : path.join((process as any).resourcesPath, "backend/node_modules");
+    const nodeModulesPath = path.join(
+      __dirname,
+      "../../",
+      "backend/node_modules"
+    );
 
     // SQLite 데이터베이스 경로 설정
-    let dbPath: string;
-    if (isDev) {
-      // 개발 모드: 프로젝트 루트의 data/db 디렉토리
-      dbPath = path.join(__dirname, "../../data/db/db.sqlite");
-    } else {
-      // 프로덕션 모드: Electron resources의 data/db 디렉토리
-      dbPath = path.join((process as any).resourcesPath, "data/db/db.sqlite");
-    }
+    const dbPath = path.join(__dirname, "../../", "data/db/db.sqlite");
+
+    // if (isDev) {
+    //   // 개발 모드: 프로젝트 루트의 data/db 디렉토리
+    //   dbPath = path.join(__dirname, "../../", "data/db/db.sqlite");
+    // } else {
+    //   // 프로덕션 모드: Electron resources의 data/db 디렉토리
+    //   dbPath = path.join((process as any).resourcesPath, "data/db/db.sqlite");
+    // }
 
     const env = {
       ...process.env,
@@ -238,7 +243,7 @@ function createWindow() {
 
   mainWindow.webContents.on(
     "did-fail-load",
-    (event, errorCode, errorDescription, validatedURL) => {
+    (_event, errorCode, errorDescription, validatedURL) => {
       console.error(`❌ Page loading failed:`, {
         errorCode,
         errorDescription,
@@ -248,12 +253,16 @@ function createWindow() {
   );
 
   // 개발 모드에서는 dev server에서 로드
-  if (process.env.NODE_ENV === "development") {
+  if (isDev) {
     console.log(`🔗 Loading from dev server: http://localhost:3000`);
     mainWindow.loadURL("http://localhost:3000");
     mainWindow.webContents.openDevTools();
   } else {
-    const indexPath = path.join(__dirname, "../dist/index.html");
+    const indexPath = path.join(
+      __dirname,
+      "../../",
+      "frontend/dist/index.html"
+    );
     console.log(`📁 Loading from file: ${indexPath}`);
     console.log(`📁 File exists: ${fs.existsSync(indexPath)}`);
     mainWindow.loadFile(indexPath);
@@ -262,7 +271,7 @@ function createWindow() {
     // 프로덕션에서도 콘솔 로그를 터미널에 출력
     mainWindow.webContents.on(
       "console-message",
-      (event, level, message, line, sourceId) => {
+      (_event, level, message, line, sourceId) => {
         const levels = ["log", "info", "warn", "error"];
         console.log(
           `[Renderer ${levels[level]}] ${message} (${sourceId}:${line})`

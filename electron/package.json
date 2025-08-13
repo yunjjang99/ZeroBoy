@@ -1,0 +1,90 @@
+{
+  "name": "zeroboy-electron",
+  "version": "1.0.0",
+  "description": "ZeroBoy Desktop Application",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "dev": "tsc && electron .",
+    "build": "tsc",
+    "pack": "npm run build && electron-builder",
+    "dist": "npm run build && electron-builder --publish=never"
+  },
+  "author": "yunjjang",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/electron": "^1.6.10",
+    "@types/minimatch": "^5.1.2",
+    "@types/node": "^20.0.0",
+    "electron": "^37.2.5",
+    "electron-builder": "^24.13.3",
+    "electron-packager": "^15.3.0",
+    "typescript": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.zeroboy.app",
+    "productName": "ZeroBoy",
+    "directories": {
+      "output": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json",
+      "src/**/*",
+      "!.vscode${/*}"
+    ],
+    "extraResources": [
+      "node_modules/**/*",
+      {
+        "from": "../frontend/dist",
+        "to": "frontend/dist"
+      },
+      {
+        "from": "../backend/dist",
+        "to": "backend/dist"
+      },
+      {
+        "from": "../backend/node_modules",
+        "to": "backend/node_modules"
+      },
+      {
+        "from": "../data/db",
+        "to": "data/db"
+      }
+    ],
+    "asar": true,
+    "win": {
+      "icon": "resources/zeroboy.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "mac": {
+      "icon": "resources/zeroboy.icns",
+      "category": "public.app-category.finance",
+      "target": "dmg"
+    },
+    "linux": {
+      "icon": "resources/zeroboy.png",
+      "target": "AppImage"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "resources/zeroboy.ico",
+      "uninstallerIcon": "resources/zeroboy.ico",
+      "installerHeaderIcon": "resources/zeroboy.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "dependencies": {
+    "child-process": "^1.0.2",
+    "cross-spawn": "^7.0.3",
+    "electron-is-dev": "^2.0.0",
+    "electron-log": "^4.4.8",
+    "yarn": "^1.22.19"
+  }
+}

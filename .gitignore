@@ -3,3 +3,5 @@ frontend/release/
 node_modules/
 frontend/backend-deps-complete/
 
+electron/build/
+electron/dist/

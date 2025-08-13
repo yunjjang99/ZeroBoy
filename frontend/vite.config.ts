@@ -79,7 +79,7 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       // 전역 환경변수 정의
-      __API_BASE_URL__: JSON.stringify("http://localhost:7778"),
+      __API_BASE_URL__: JSON.stringify("http://localhost:7777"),
     },
   };
 });

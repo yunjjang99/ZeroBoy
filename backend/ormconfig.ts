@@ -6,7 +6,7 @@ import { BrowserFingerprint } from "@/fingerprint/entities/browser-fingerprint.e
 
 // SQLite 전용 설정 - 일렉트론 환경 고려
 
-const isDev = process.env.IS_DEV
+const isDev = process.env.IS_DEV;
 
 let databasePath: string;
 
@@ -41,7 +41,6 @@ const commonTypeOrmConfig: TypeOrmModuleOptions & DataSourceOptions = {
 };
 
 console.log("SQLite DB Path:", databasePath);
-
 
 export const typeOrmConfig = {
   ...commonTypeOrmConfig,

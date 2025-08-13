@@ -81,7 +81,7 @@ module.exports = (env, argv) => {
       }),
       new webpack.DefinePlugin({
         __API_BASE_URL__: JSON.stringify(
-          isWebMode ? "http://localhost:7777" : "http://localhost:7778"
+          isWebMode ? "http://localhost:7777" : "http://localhost:7777"
         ),
       }),
       ...(isProduction

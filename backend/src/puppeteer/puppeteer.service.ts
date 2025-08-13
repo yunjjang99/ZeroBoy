@@ -1,7 +1,6 @@
 // src/puppeteer/puppeteer.service.ts
 import { Injectable, OnModuleDestroy, Logger } from "@nestjs/common";
 import { Browser, Page, CDPSession } from "puppeteer-core";
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 import {
   generateRandomFingerprintForKorea,
   applyFingerprint,
