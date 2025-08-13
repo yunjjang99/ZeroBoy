@@ -34,6 +34,17 @@ export class TradingService {
     });
   }
 
+  // 마지막 거래 페어 조회
+  async getLastTradingPair(): Promise<TradingPair | null> {
+    const pairs = await this.tradingPairRepository.find({
+      relations: ["tradingCoins"],
+      order: { createdAt: "DESC" },
+      take: 1,
+    });
+
+    return pairs.length > 0 ? pairs[0] : null;
+  }
+
   // 거래 페어 ID로 조회
   async getTradingPairById(id: string): Promise<TradingPair> {
     const tradingPair = await this.tradingPairRepository.findOne({
@@ -386,8 +397,8 @@ export class TradingService {
     }[]
   > {
     const pairs = await this.tradingPairRepository.find({
-      where: { isActive: true },
       order: { createdAt: "DESC" },
+      take: 20, // 최근 20개까지 조회
     });
 
     const result = [];
@@ -432,7 +443,6 @@ export class TradingService {
 
       result.push({
         pairId: pair.id,
-        pairName: pair.name,
         exchangeA: pair.exchangeA,
         exchangeB: pair.exchangeB,
         status: pair.status,
@@ -550,5 +560,124 @@ export class TradingService {
       recoveredPairs,
       totalActivePairs: activePairs.length,
     };
+  }
+
+  // 브라우저 계정 정보 갱신
+  async updateBrowserAccountInfo(
+    pairId: string,
+    accountInfoA?: { accountId: string; memo: string },
+    accountInfoB?: { accountId: string; memo: string }
+  ): Promise<TradingPair> {
+    const pair = await this.getTradingPairById(pairId);
+
+    // 거래 페어의 계정 정보 업데이트
+    const updateData: Partial<TradingPair> = {};
+
+    if (accountInfoA) {
+      updateData.accountInfoA = accountInfoA;
+    }
+
+    if (accountInfoB) {
+      updateData.accountInfoB = accountInfoB;
+    }
+
+    const updatedPair = await this.updateTradingPair(pairId, updateData);
+
+    // 브라우저 A의 계정 정보 갱신 (데이터 일관성 유지)
+    if (accountInfoA && pair.browserAUuid) {
+      try {
+        await this.puppeteerService.updateBrowserAccountInfo(
+          pair.browserAUuid,
+          accountInfoA
+        );
+        console.log(`Browser A account info updated for pair ${pairId}`);
+      } catch (error) {
+        console.error(
+          `Failed to update browser A account info for pair ${pairId}:`,
+          error
+        );
+        // 브라우저 업데이트 실패 시 거래 페어도 롤백
+        await this.updateTradingPair(pairId, {
+          accountInfoA: pair.accountInfoA,
+        });
+        throw new Error(
+          `Failed to sync browser A account info: ${error.message}`
+        );
+      }
+    }
+
+    // 브라우저 B의 계정 정보 갱신 (데이터 일관성 유지)
+    if (accountInfoB && pair.browserBUuid) {
+      try {
+        await this.puppeteerService.updateBrowserAccountInfo(
+          pair.browserBUuid,
+          accountInfoB
+        );
+        console.log(`Browser B account info updated for pair ${pairId}`);
+      } catch (error) {
+        console.error(
+          `Failed to update browser B account info for pair ${pairId}:`,
+          error
+        );
+        // 브라우저 업데이트 실패 시 거래 페어도 롤백
+        await this.updateTradingPair(pairId, {
+          accountInfoB: pair.accountInfoB,
+        });
+        throw new Error(
+          `Failed to sync browser B account info: ${error.message}`
+        );
+      }
+    }
+
+    return updatedPair;
+  }
+
+  // 거래 페어와 브라우저 프로필 간 데이터 동기화
+  async syncAccountInfoWithBrowsers(pairId: string): Promise<TradingPair> {
+    const pair = await this.getTradingPairById(pairId);
+
+    // 브라우저 A의 계정 정보로 거래 페어 동기화
+    if (pair.browserAUuid) {
+      try {
+        const browserA = await this.puppeteerService.getBrowserAccountInfo(
+          pair.browserAUuid
+        );
+        if (
+          browserA &&
+          JSON.stringify(browserA) !== JSON.stringify(pair.accountInfoA)
+        ) {
+          await this.updateTradingPair(pairId, { accountInfoA: browserA });
+          console.log(`Synced browser A account info for pair ${pairId}`);
+        }
+      } catch (error) {
+        console.warn(
+          `Failed to sync browser A account info for pair ${pairId}:`,
+          error
+        );
+      }
+    }
+
+    // 브라우저 B의 계정 정보로 거래 페어 동기화
+    if (pair.browserBUuid) {
+      try {
+        const browserB = await this.puppeteerService.getBrowserAccountInfo(
+          pair.browserBUuid
+        );
+        if (
+          browserB &&
+          JSON.stringify(browserB) !== JSON.stringify(pair.accountInfoB)
+        ) {
+          await this.updateTradingPair(pairId, { accountInfoB: browserB });
+          console.log(`Synced browser B account info for pair ${pairId}`);
+        }
+      } catch (error) {
+        console.warn(
+          `Failed to sync browser B account info for pair ${pairId}:`,
+          error
+        );
+      }
+    }
+
+    return await this.getTradingPairById(pairId);
   }
 }

@@ -78,12 +78,21 @@ export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
             <div className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
                 <div className="flex items-center justify-between mb-2">
                     <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{label}</h4>
-                    <span className={`px-2 py-1 text-xs rounded ${isConnected
+                    <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 text-xs rounded ${isConnected
                             ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
                             : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                        }`}>
-                        {isConnected ? '활성' : '비활성'}
-                    </span>
+                            }`}>
+                            {isConnected ? '활성' : '비활성'}
+                        </span>
+                        <button
+                            onClick={() => onReopen?.(browser.uuid)}
+                            className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                            title={`${label} 재생성`}
+                        >
+                            <RotateCw className="h-5 w-5" />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="space-y-2">
@@ -137,7 +146,13 @@ export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
                 </div>
 
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    생성일: {new Date(pair.createdAt).toLocaleDateString("ko-KR")}
+                    생성일: {new Date(pair.createdAt).toLocaleString("ko-KR", {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}
                 </p>
 
                 <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
@@ -149,24 +164,6 @@ export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
             </div>
 
             <div className="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-700">
-                {pair.browserA && (
-                    <button
-                        onClick={() => onReopen?.(pair.browserA!.uuid)}
-                        className="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                        title="브라우저 A 재생성"
-                    >
-                        <RotateCw className="h-4 w-4" />
-                    </button>
-                )}
-                {pair.browserB && (
-                    <button
-                        onClick={() => onReopen?.(pair.browserB!.uuid)}
-                        className="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                        title="브라우저 B 재생성"
-                    >
-                        <RotateCw className="h-4 w-4" />
-                    </button>
-                )}
                 <button
                     onClick={() => onDelete?.(pair.pairId)}
                     className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"

@@ -144,7 +144,7 @@ const BrowserProfilesSection: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
                 <div className="flex items-center gap-2 sm:gap-3">
                     <Link className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500 dark:text-blue-400" />
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">거래 페어 관리</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">거래 페어 브라우저 관리</h2>
                 </div>
                 {/* <button
                     onClick={() => setShowUrlModal(true)}

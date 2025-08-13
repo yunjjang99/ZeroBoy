@@ -12,10 +12,6 @@ import { Exchange } from "../../enums/enum";
 export class CreateTradingPairDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
-
-  @IsString()
-  @IsNotEmpty()
   description: string;
 
   @IsEnum(Exchange)
@@ -44,4 +40,12 @@ export class CreateTradingPairDto {
 
   @IsOptional()
   settings?: Record<string, any>;
+
+  @IsOptional()
+  @IsObject()
+  accountInfoA?: { accountId: string; memo: string };
+
+  @IsOptional()
+  @IsObject()
+  accountInfoB?: { accountId: string; memo: string };
 }

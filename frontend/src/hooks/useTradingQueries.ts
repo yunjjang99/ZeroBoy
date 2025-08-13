@@ -20,6 +20,8 @@ type UpdateTradingPairVars = {
   data: {
     exchangeA?: Exchange;
     exchangeB?: Exchange;
+    status?: string;
+    isActive?: boolean;
     accountInfo?: Record<string, { accountId: string; memo: string }>;
   };
 };
@@ -87,6 +89,17 @@ interface TradingPairResponse {
   tradingCoins?: TradingCoinResponse[];
 }
 
+// 백엔드 success 응답 래퍼 타입
+interface SuccessResponse<T> {
+  isSuccess: boolean;
+  statusCode: number;
+  message: string;
+  timestamp: string;
+  path: string;
+  method: string;
+  data: T;
+}
+
 interface TradingCoinResponse {
   id: string;
   tradingPairId: string;
@@ -117,7 +130,6 @@ const tradingApi = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           createDto: {
-            name: `${data.exchangeA.toUpperCase()}-${data.exchangeB.toUpperCase()}`,
             description: `${data.exchangeA.toUpperCase()}와 ${data.exchangeB.toUpperCase()} 간의 헷징 페어`,
             exchangeA: data.exchangeA,
             exchangeB: data.exchangeB,
@@ -178,6 +190,20 @@ const tradingApi = {
     return response.json();
   },
 
+  // 마지막 거래 페어 조회
+  getLastTradingPair: async (): Promise<
+    SuccessResponse<TradingPairResponse | null>
+  > => {
+    const response = await fetch(
+      createApiUrl(`${API_CONFIG.ENDPOINTS.TRADING.PAIRS}/last`)
+    );
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Failed to fetch last trading pair");
+    }
+    return response.json();
+  },
+
   // 거래 페어 ID로 조회
   getTradingPairById: async (id: string): Promise<TradingPairResponse> => {
     const response = await fetch(
@@ -222,6 +248,36 @@ const tradingApi = {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || "Failed to delete trading pair");
     }
+  },
+
+  // 브라우저 계정 정보 갱신
+  updateBrowserAccountInfo: async ({
+    id,
+    accountInfoA,
+    accountInfoB,
+  }: {
+    id: string;
+    accountInfoA?: { accountId: string; memo: string };
+    accountInfoB?: { accountId: string; memo: string };
+  }): Promise<TradingPairResponse> => {
+    const response = await fetch(
+      createApiUrl(`${API_CONFIG.ENDPOINTS.TRADING.PAIRS}/${id}/account-info`),
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accountInfoA,
+          accountInfoB,
+        }),
+      }
+    );
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || "Failed to update browser account info"
+      );
+    }
+    return response.json();
   },
 
   // 거래 페어 활성화
@@ -423,6 +479,15 @@ export const useTradingPairs = () => {
     queryFn: tradingApi.getTradingPairs,
     staleTime: 1000 * 60 * 5, // 5분
     refetchInterval: 1000 * 30, // 30초마다 갱신
+  });
+};
+
+// 마지막 거래 페어 조회 훅
+export const useLastTradingPair = () => {
+  return useQuery<SuccessResponse<TradingPairResponse | null>>({
+    queryKey: ["last-trading-pair"],
+    queryFn: tradingApi.getLastTradingPair,
+    staleTime: 1000 * 60 * 5, // 5분
   });
 };
 
@@ -631,6 +696,31 @@ export const useUpdateCoinPrice = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["trading-pair", data.tradingPairId],
+      });
+    },
+  });
+};
+
+// 브라우저 계정 정보 갱신 훅
+export const useUpdateBrowserAccountInfo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    TradingPairResponse,
+    Error,
+    {
+      id: string;
+      accountInfoA?: { accountId: string; memo: string };
+      accountInfoB?: { accountId: string; memo: string };
+    }
+  >({
+    mutationFn: tradingApi.updateBrowserAccountInfo,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["trading-pair", data.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["trading-pairs"],
       });
     },
   });

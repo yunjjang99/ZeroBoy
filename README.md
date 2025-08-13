@@ -190,13 +190,27 @@ ZeroBoy/
 
 ### SQLite 데이터베이스 오류
 
-- `backend/data/` 디렉토리 존재 확인
+- `/data/db` 디렉토리 존재 확인
 - 데이터베이스 파일 권한 확인
 
 ### 일렉트론 빌드 오류
 
 - Node.js 버전 확인 (20.16.0 이상)
 - 모든 의존성 설치 확인
+
+### SQLite UNIQUE 제약 조건 오류
+
+거래 페어 생성 시 "UNIQUE constraint failed" 오류가 발생하는 경우:
+
+```bash
+# name 컬럼 제거 마이그레이션 실행 (권장)
+./migrate-remove-name-column.sh
+
+# 또는 수동으로 데이터베이스 정리
+sqlite3 data/db/db.sqlite "DELETE FROM trading_coins; DELETE FROM trading_pairs;"
+```
+
+**주의**: 마이그레이션 스크립트는 자동으로 백업을 생성합니다. 수동 정리는 기존 거래 페어 데이터를 모두 삭제합니다.
 
 ## 📝 라이선스
 

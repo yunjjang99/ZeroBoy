@@ -18,11 +18,14 @@ export class FingerprintService {
     exchange?: string
   ): Promise<string> {
     const uuid = uuidv4();
-    
+
     // 디버깅: accountInfo 로그
-    console.log('🔍 saveFingerprint - accountInfo:', JSON.stringify(accountInfo, null, 2));
-    console.log('🔍 saveFingerprint - exchange:', exchange);
-    
+    console.log(
+      "🔍 saveFingerprint - accountInfo:",
+      JSON.stringify(accountInfo, null, 2)
+    );
+    console.log("🔍 saveFingerprint - exchange:", exchange);
+
     const record = this.fingerprintRepo.create({
       uuid,
       ...fingerprint,
@@ -30,9 +33,12 @@ export class FingerprintService {
       accountInfo,
       exchange,
     });
-    
-    console.log('🔍 saveFingerprint - record.accountInfo:', JSON.stringify(record.accountInfo, null, 2));
-    
+
+    console.log(
+      "🔍 saveFingerprint - record.accountInfo:",
+      JSON.stringify(record.accountInfo, null, 2)
+    );
+
     await this.fingerprintRepo.save(record);
     return uuid;
   }
@@ -175,5 +181,25 @@ export class FingerprintService {
     }
 
     console.log("더미 데이터가 생성되었습니다.");
+  }
+
+  // 브라우저 계정 정보 갱신
+  async updateBrowserAccountInfo(
+    uuid: string,
+    accountInfo: { accountId: string; memo: string }
+  ): Promise<void> {
+    const fingerprint = await this.fingerprintRepo.findOneBy({ uuid });
+    if (!fingerprint) {
+      throw new Error(`Browser fingerprint with UUID ${uuid} not found`);
+    }
+
+    await this.fingerprintRepo.update(
+      { uuid },
+      {
+        accountInfo,
+      }
+    );
+
+    console.log(`Browser account info updated for UUID: ${uuid}`, accountInfo);
   }
 }

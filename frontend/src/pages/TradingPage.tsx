@@ -4,7 +4,7 @@ import { ExchangePairSelector } from '@/components/ExchangePairSelector'
 import { CreatePairForm } from '@/components/CreatePairForm'
 import AccountInfoModal from '@/components/AccountInfoModal'
 import { useTranslation } from 'react-i18next'
-import { useTradingPairs, useCreateTradingPairWithBrowsers, useActivateTradingPair, useDeactivateTradingPair, useDeleteTradingPair, useRecoverTradingPairs, useAutoRecoverActivePairs, useActivePairsStatus, Exchange } from '@/hooks/useTradingQueries'
+import { useTradingPairs, useCreateTradingPairWithBrowsers, useActivateTradingPair, useDeactivateTradingPair, useDeleteTradingPair, useRecoverTradingPairs, useAutoRecoverActivePairs, useActivePairsStatus, useLastTradingPair, useUpdateTradingPair, Exchange } from '@/hooks/useTradingQueries'
 import { useAlert } from '@/contexts/AlertContext'
 
 interface ExchangeInfo {
@@ -14,7 +14,7 @@ interface ExchangeInfo {
 
 const TradingPage: React.FC = () => {
     const { t } = useTranslation()
-    const { showToast, showAlert } = useAlert()
+    const { showToast, showAlert, showConfirm } = useAlert()
 
     // 거래소 정보 (Exchange enum 기반)
     const availableExchanges: { [key in Exchange]: ExchangeInfo } = {
@@ -35,7 +35,9 @@ const TradingPage: React.FC = () => {
     // API 훅들
     const { data: tradingPairs, isLoading, error } = useTradingPairs()
     const { data: activePairsStatus } = useActivePairsStatus()
+    const { data: lastTradingPair } = useLastTradingPair()
     const autoRecoverMutation = useAutoRecoverActivePairs()
+    const updateTradingPairMutation = useUpdateTradingPair()
 
     // 백엔드 응답 구조에서 실제 데이터 추출
     const tradingPairsList = tradingPairs || []
@@ -45,17 +47,79 @@ const TradingPage: React.FC = () => {
     const deleteTradingPairMutation = useDeleteTradingPair()
     const recoverTradingPairsMutation = useRecoverTradingPairs()
 
-    // 앱 시작 시 자동 복구 실행
+    // 앱 시작 시 자동 복구 실행 (한 번만)
     useEffect(() => {
         const performAutoRecover = async () => {
             try {
-                const result = await autoRecoverMutation.mutateAsync()
-                if (result.totalActivePairs > 0) {
-                    showToast(`${result.totalActivePairs}개의 활성 페어가 복구되었습니다.`, {
-                        type: 'success',
-                        title: '자동 복구 완료',
-                        duration: 3000
-                    })
+                // sessionStorage를 사용하여 현재 세션에서 한 번만 실행되도록 체크
+                const hasCheckedRecovery = sessionStorage.getItem('hasCheckedRecovery')
+
+                if (!hasCheckedRecovery) {
+                    console.log(lastTradingPair, "lastTradingPair")
+                    // 마지막 페어가 있고, 상태가 inactive가 아닌 경우 사용자에게 확인
+                    if (lastTradingPair?.data && lastTradingPair.data.status !== 'inactive') {
+                        // 사용자에게 복구 여부 확인
+                        showConfirm(
+                            `${lastTradingPair.data.description}이(가) ${lastTradingPair.data.status} 상태입니다. 복구하시겠습니까?`,
+                            async () => {
+                                // 사용자가 복구를 선택한 경우
+                                try {
+                                    const result = await autoRecoverMutation.mutateAsync()
+                                    if (result.totalActivePairs > 0) {
+                                        showToast(`페어가 복구되었습니다.`, {
+                                            type: 'success',
+                                            title: '자동 복구 완료',
+                                            duration: 3000
+                                        })
+                                    }
+                                } catch (error) {
+                                    console.error('복구 실패:', error)
+                                }
+                            },
+                            {
+                                type: 'warning',
+                                title: '거래 페어 복구 확인',
+                                confirmText: '복구',
+                                cancelText: '비활성화',
+                            }
+                        )
+
+                        // 사용자가 취소를 선택한 경우 (비활성화)
+                        const handleCancel = async () => {
+                            try {
+                                await updateTradingPairMutation.mutateAsync({
+                                    id: lastTradingPair.data.id,
+                                    data: { status: 'inactive', isActive: false }
+                                })
+                                showToast('마지막 거래 페어가 비활성화되었습니다.', {
+                                    type: 'info',
+                                    title: '페어 비활성화',
+                                    duration: 3000
+                                })
+                            } catch (error) {
+                                console.error('비활성화 실패:', error)
+                            }
+                        }
+
+                        // 취소 버튼 클릭 시 비활성화 실행
+                        setTimeout(() => {
+                            // 모달이 닫힌 후 비활성화 실행
+                            handleCancel()
+                        }, 100)
+                    } else {
+                        // 마지막 페어가 없거나 이미 inactive 상태인 경우 기존 복구 로직 실행
+                        const result = await autoRecoverMutation.mutateAsync()
+                        if (result.totalActivePairs > 0) {
+                            showToast(`${result.totalActivePairs}개의 활성 페어가 복구되었습니다.`, {
+                                type: 'success',
+                                title: '자동 복구 완료',
+                                duration: 3000
+                            })
+                        }
+                    }
+
+                    // 복구 체크 완료 표시 (현재 세션 동안 한 번만 실행)
+                    sessionStorage.setItem('hasCheckedRecovery', 'true')
                 }
             } catch (error) {
                 console.error('자동 복구 실패:', error)
@@ -63,9 +127,11 @@ const TradingPage: React.FC = () => {
             }
         }
 
-        // 앱 시작 시 한 번만 실행
-        performAutoRecover()
-    }, []) // 빈 의존성 배열로 한 번만 실행
+        // lastTradingPair가 로드된 후에만 실행
+        if (lastTradingPair !== undefined) {
+            performAutoRecover()
+        }
+    }, [lastTradingPair]) // lastTradingPair 의존성 추가
 
     // API 데이터를 컴포넌트 형식으로 변환
     const hedgingPairs: HedgingPair[] = Array.isArray(tradingPairsList) ? tradingPairsList.map(pair => ({
@@ -308,7 +374,7 @@ const TradingPage: React.FC = () => {
                         pairs={hedgingPairs}
                         exchanges={availableExchanges}
                         onDelete={handleDeletePair}
-                        onLaunchBrowser={handleLaunchBrowser}
+                    // onLaunchBrowser={handleLaunchBrowser}
                     />
                 </div>
 

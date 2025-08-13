@@ -34,6 +34,12 @@ export class TradingController {
     return await this.tradingService.getAllTradingPairs();
   }
 
+  // 마지막 거래 페어 조회
+  @Get("pairs/last")
+  async getLastTradingPair() {
+    return success(await this.tradingService.getLastTradingPair());
+  }
+
   // pair 정보와 함께 브라우저 프로필 조회
   @Get("pairs/with-browser-profiles")
   async getTradingPairsWithBrowserProfiles() {
@@ -159,5 +165,22 @@ export class TradingController {
   async autoRecoverActivePairs() {
     const result = await this.tradingService.autoRecoverActivePairs();
     return success(result);
+  }
+
+  // 브라우저 계정 정보 갱신
+  @Put("pairs/:id/account-info")
+  async updateBrowserAccountInfo(
+    @Param("id") id: string,
+    @Body()
+    body: {
+      accountInfoA?: { accountId: string; memo: string };
+      accountInfoB?: { accountId: string; memo: string };
+    }
+  ): Promise<TradingPair> {
+    return await this.tradingService.updateBrowserAccountInfo(
+      id,
+      body.accountInfoA,
+      body.accountInfoB
+    );
   }
 }

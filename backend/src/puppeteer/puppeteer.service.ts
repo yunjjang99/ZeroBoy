@@ -850,4 +850,44 @@ export class PuppeteerService implements OnModuleDestroy {
 
     return { uuid, isConnected, tabs };
   }
+
+  // 브라우저 계정 정보 갱신
+  async updateBrowserAccountInfo(
+    uuid: string,
+    accountInfo: { accountId: string; memo: string }
+  ): Promise<void> {
+    const browser = this.browsers.get(uuid);
+    if (!browser) {
+      throw new Error(`Browser with UUID ${uuid} not found`);
+    }
+
+    try {
+      // FingerprintService를 통해 브라우저 프로필의 계정 정보 업데이트
+      await this.fingerprintService.updateBrowserAccountInfo(uuid, accountInfo);
+
+      this.logger.log(`Browser account info updated for UUID: ${uuid}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to update browser account info for UUID ${uuid}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  // 브라우저 계정 정보 조회
+  async getBrowserAccountInfo(
+    uuid: string
+  ): Promise<{ accountId: string; memo: string } | null> {
+    try {
+      const fingerprint = await this.fingerprintService.getFingerprint(uuid);
+      return fingerprint?.accountInfo || null;
+    } catch (error) {
+      this.logger.error(
+        `Failed to get browser account info for UUID ${uuid}:`,
+        error
+      );
+      return null;
+    }
+  }
 }
