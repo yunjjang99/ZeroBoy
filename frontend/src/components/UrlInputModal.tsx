@@ -44,7 +44,7 @@ const UrlInputModal: React.FC<UrlInputModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-            <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl p-4 sm:p-6 shadow-2xl w-full max-w-sm sm:max-w-md animate-in fade-in-0 zoom-in-95 duration-200 border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-black text-gray-900 dark:text-gray-100 rounded-xl p-4 sm:p-6 shadow-2xl w-full max-w-sm sm:max-w-md animate-in fade-in-0 zoom-in-95 duration-200 border border-gray-200 dark:border-gray-800">
                 <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <h2 className="text-base sm:text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
                         <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />

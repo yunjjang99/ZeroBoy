@@ -42,7 +42,7 @@ const DetailItem = ({
   valueClassName?: string
 }) => (
   <div className="flex items-baseline justify-between text-sm">
-    <span className="text-slate-600 dark:text-slate-400 font-medium">{label}</span>
+    <span className="text-theme-text-tertiary font-medium">{label}</span>
     <span className={cn("font-mono font-semibold", valueClassName)}>{value}</span>
   </div>
 )
@@ -71,7 +71,7 @@ const PositionPanel = ({
   const typeBgColor = type === "LONG" ? "bg-emerald-50 dark:bg-emerald-900/20" : "bg-red-50 dark:bg-red-900/20"
 
   return (
-    <div className={cn("rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 p-4 shadow-sm hover:shadow-md transition-all duration-200", typeBgColor)}>
+    <div className={cn("rounded-xl border border-theme-border-primary bg-theme-bg-card p-4 shadow-sm hover:shadow-md transition-all duration-200", typeBgColor)}>
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gradient-to-br from-slate-500 to-slate-600 dark:from-slate-400 dark:to-slate-500 rounded-lg flex items-center justify-center shadow-sm">
@@ -79,7 +79,7 @@ const PositionPanel = ({
               {exchangeInfo.name.charAt(0)}
             </span>
           </div>
-          <span className="font-semibold text-slate-900 dark:text-slate-100">{exchangeInfo.name}</span>
+          <span className="font-semibold text-theme-text-primary">{exchangeInfo.name}</span>
         </div>
         <div className={cn("px-2 py-1 rounded-md text-xs font-bold", type === "LONG" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300")}>
           {type === "LONG" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
@@ -108,15 +108,15 @@ export const HedgingPairCard: React.FC<{
   const { t } = useTranslation()
 
   return (
-    <Card className="flex flex-col border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+    <Card className="flex flex-col border-0 shadow-xl bg-theme-bg-card/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold text-slate-900 dark:text-slate-100">{pair.symbol}</CardTitle>
+          <CardTitle className="text-xl font-bold text-theme-text-primary">{pair.symbol}</CardTitle>
           <Badge className={cn("text-xs font-semibold px-3 py-1", statusStyles[pair.status])}>
             {pair.status}
           </Badge>
         </div>
-        <CardDescription className="text-slate-600 dark:text-slate-400">ID: {pair.id}</CardDescription>
+        <CardDescription className="text-theme-text-tertiary">ID: {pair.id}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
@@ -127,7 +127,7 @@ export const HedgingPairCard: React.FC<{
               type="LONG"
             />
           ) : (
-            <div className="flex h-full items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 p-4 text-sm text-slate-500 dark:text-slate-400">
+            <div className="flex h-full items-center justify-center rounded-lg border border-theme-border-primary bg-theme-bg-tertiary p-4 text-sm text-theme-text-muted">
               {t('trading.position.noLongPosition')}
             </div>
           )}
@@ -143,18 +143,18 @@ export const HedgingPairCard: React.FC<{
               type="SHORT"
             />
           ) : (
-            <div className="flex h-full items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 p-4 text-sm text-slate-500 dark:text-slate-400">
+            <div className="flex h-full items-center justify-center rounded-lg border border-theme-border-primary bg-theme-bg-tertiary p-4 text-sm text-theme-text-muted">
               {t('trading.position.noShortPosition')}
             </div>
           )}
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 px-6 py-4 rounded-b-xl">
+      <CardFooter className="flex justify-between bg-gradient-to-r from-theme-bg-tertiary to-theme-bg-secondary px-6 py-4 rounded-b-xl">
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="icon"
-            className="border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+            className="border-theme-border-primary text-theme-text-secondary hover:bg-theme-hover-bg"
           >
             <Settings className="h-4 w-4" />
           </Button>

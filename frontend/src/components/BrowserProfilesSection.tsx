@@ -115,7 +115,7 @@ const BrowserProfilesSection: React.FC = () => {
 
     if (error) {
         return (
-            <div className="p-3 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <div className="p-3 sm:p-6 bg-white dark:bg-black rounded-lg shadow-sm">
                 <div className="text-center py-8 sm:py-12">
                     <div className="text-red-500 dark:text-red-400 mb-3 sm:mb-4">
                         <AlertCircle className="h-8 w-8 sm:h-12 sm:w-12 mx-auto" />

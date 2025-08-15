@@ -62,7 +62,7 @@ const Toast = ({
     return (
         <div
             className={`
-        fixed top-4 right-4 z-50 w-80 bg-white dark:bg-gray-800 border-l-4 shadow-lg rounded-lg p-4
+        fixed top-4 right-4 z-50 w-80 bg-white dark:bg-black border-l-4 shadow-lg rounded-lg p-4
         transform transition-all duration-300 ease-in-out
         ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
         ${getBorderColor()}

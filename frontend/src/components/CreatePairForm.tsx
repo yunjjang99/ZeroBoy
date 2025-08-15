@@ -28,10 +28,10 @@ const StatusDisplay = ({
     const { t } = useTranslation()
 
     return (
-        <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border border-slate-200 dark:border-slate-600 p-4 shadow-sm hover:shadow-md transition-all duration-200">
+        <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-theme-bg-tertiary to-theme-bg-secondary border border-theme-border-primary p-4 shadow-sm hover:shadow-md transition-all duration-200">
             <div className="flex items-center gap-3">
                 <ExchangeLogo name={name} size="lg" className="bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500" />
-                <span className="font-semibold text-slate-900 dark:text-slate-100">{name}</span>
+                <span className="font-semibold text-theme-text-primary">{name}</span>
             </div>
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2" title={t('trading.exchangeStatus.loginStatus')}>
@@ -40,7 +40,7 @@ const StatusDisplay = ({
                     ) : (
                         <XCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
                     )}
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <span className="text-sm font-medium text-theme-text-secondary">
                         {isLoggedIn ? t('trading.exchangeStatus.loggedIn') : t('trading.exchangeStatus.loggedOut')}
                     </span>
                 </div>
@@ -50,7 +50,7 @@ const StatusDisplay = ({
                     ) : (
                         <XCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
                     )}
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <span className="text-sm font-medium text-theme-text-secondary">
                         {isConnected ? t('trading.exchangeStatus.connected') : t('trading.exchangeStatus.disconnected')}
                     </span>
                 </div>
@@ -67,17 +67,17 @@ export function CreatePairForm({ activePair, onCreatePair, hasActivePairs = fals
     const exchangeBStatus = { isLoggedIn: false, isConnected: true }
 
     return (
-        <Card className="border-0 shadow-xl bg-white dark:bg-slate-900">
+        <Card className="border-0 shadow-xl bg-theme-bg-card">
             <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500 rounded-lg flex items-center justify-center">
                         <Activity className="text-white h-4 w-4" />
                     </div>
                     <div>
-                        <CardTitle className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                        <CardTitle className="text-xl font-bold text-theme-text-primary">
                             {t('trading.exchangeStatus.title')}
                         </CardTitle>
-                        <CardDescription className="text-slate-600 dark:text-slate-400">
+                        <CardDescription className="text-theme-text-tertiary">
                             {t('trading.exchangeStatus.description')}
                         </CardDescription>
                     </div>
@@ -90,10 +90,10 @@ export function CreatePairForm({ activePair, onCreatePair, hasActivePairs = fals
                         <div className="flex items-center justify-center gap-3 mb-4">
                             <AlertTriangle className="h-8 w-8 text-amber-500 dark:text-amber-400" />
                             <div>
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                                <h3 className="text-lg font-semibold text-theme-text-primary">
                                     현재 거래 진행 중
                                 </h3>
-                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                <p className="text-sm text-theme-text-tertiary">
                                     {activePairsCount}개의 활성 페어가 실행 중입니다.
                                 </p>
                             </div>
@@ -108,7 +108,7 @@ export function CreatePairForm({ activePair, onCreatePair, hasActivePairs = fals
                     // 활성 페어가 없는 경우 - 거래소 상태 표시
                     <>
                         <div className="text-center mb-4">
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                            <p className="text-sm text-theme-text-tertiary mb-2">
                                 아직 활성화된 거래소가 없습니다.
                             </p>
                         </div>

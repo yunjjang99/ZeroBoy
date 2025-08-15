@@ -69,18 +69,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onSectionChange, activeSection }) => 
     ]
 
     return (
-        <div className="w-48 sm:w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen flex flex-col">
+        <div className="w-48 sm:w-64 bg-theme-bg-sidebar border-r border-theme-border-primary h-screen flex flex-col">
             {/* Logo */}
-            <div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-700 drag-region">
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">ZeroBoy</h1>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">Crypto Trading Bot</p>
+            <div className="p-3 sm:p-6 border-b border-theme-border-primary drag-region">
+                <h1 className="text-lg sm:text-xl font-bold text-theme-text-primary truncate">ZeroBoy</h1>
+                <p className="text-xs sm:text-sm text-theme-text-tertiary truncate">Crypto Trading Bot</p>
             </div>
 
             {/* Navigation */}
             <nav className="flex-1 p-2 sm:p-4 space-y-4 sm:space-y-6 no-drag">
                 {sidebarData.map((section, sectionIndex) => (
                     <div key={sectionIndex}>
-                        <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 sm:mb-3 px-1">
+                        <h3 className="text-xs font-semibold text-theme-text-muted uppercase tracking-wider mb-2 sm:mb-3 px-1">
                             {section.title}
                         </h3>
                         <ul className="space-y-1 sm:space-y-2">
@@ -90,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSectionChange, activeSection }) => 
                                         to={`/${item.id}`}
                                         className={`w-full flex items-center space-x-2 sm:space-x-3 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm transition-colors ${item.active
                                             ? 'bg-blue-600 text-white'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                                            : 'text-theme-text-secondary hover:bg-theme-hover-bg hover:text-theme-text-primary'
                                             }`}
                                     >
                                         <div className="flex-shrink-0">
@@ -108,17 +108,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onSectionChange, activeSection }) => 
             </nav>
 
             {/* Bottom Navigation */}
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2 no-drag">
+            <div className="p-4 border-t border-theme-border-primary space-y-2 no-drag">
                 <Link
                     to="/settings"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-theme-text-secondary hover:bg-theme-hover-bg hover:text-theme-text-primary transition-colors"
                 >
                     <Settings size={20} />
                     <span>{t('common.settings')}</span>
                 </Link>
                 <Link
                     to="/help"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm text-theme-text-secondary hover:bg-theme-hover-bg hover:text-theme-text-primary transition-colors"
                 >
                     <HelpCircle size={20} />
                     <span>{t('common.help')}</span>

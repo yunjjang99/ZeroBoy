@@ -122,10 +122,10 @@ const TradingSection: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-theme-bg-secondary p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-screen-2xl">
         {/* 헤더 */}
-        <header className="relative mb-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 text-center shadow-sm">
+        <header className="relative mb-8 rounded-lg border border-theme-border-primary bg-theme-bg-card p-6 text-center shadow-sm">
           <div className="absolute right-4 top-4">
             <ExchangePairSelector
               availableExchanges={availableExchanges}
@@ -133,10 +133,10 @@ const TradingSection: React.FC = () => {
               onSave={handleSavePair}
             />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-3xl font-bold tracking-tight text-theme-text-primary">
             {t('trading.title')}
           </h1>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 text-sm text-theme-text-tertiary">
             {t('trading.subtitle')}
           </p>
           <div className="mt-2 flex items-center justify-center gap-4">
@@ -146,16 +146,16 @@ const TradingSection: React.FC = () => {
                   {activePairInfo.exchangeA.name.charAt(0)}
                 </span>
               </div>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">{activePairInfo.exchangeA.name}</span>
+              <span className="font-semibold text-theme-text-primary">{activePairInfo.exchangeA.name}</span>
             </div>
-            <span className="text-lg font-bold text-slate-400 dark:text-slate-500">↔</span>
+            <span className="text-lg font-bold text-theme-text-muted">↔</span>
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-md flex items-center justify-center">
                 <span className="text-white font-bold text-xs">
                   {activePairInfo.exchangeB.name.charAt(0)}
                 </span>
               </div>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">{activePairInfo.exchangeB.name}</span>
+              <span className="font-semibold text-theme-text-primary">{activePairInfo.exchangeB.name}</span>
             </div>
           </div>
         </header>

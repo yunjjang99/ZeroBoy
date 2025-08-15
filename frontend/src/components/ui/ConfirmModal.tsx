@@ -69,7 +69,7 @@ const ConfirmModal = ({
 
     return (
         <div className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl p-6 shadow-2xl w-full max-w-sm animate-in fade-in-0 zoom-in-95 duration-200 border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-black text-gray-900 dark:text-gray-100 rounded-xl p-6 shadow-2xl w-full max-w-sm animate-in fade-in-0 zoom-in-95 duration-200 border border-gray-200 dark:border-gray-800">
                 <div className="flex items-start gap-3">
                     {getIcon()}
                     <div className="flex-1">

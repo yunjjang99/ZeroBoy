@@ -64,7 +64,7 @@ export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
     const BrowserInfo = ({ browser, label, exchange }: { browser?: BrowserProfile; label: string; exchange: Exchange }) => {
         if (!browser) {
             return (
-                <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
+                <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-800">
                     <Globe className="h-4 w-4 text-gray-400" />
                     <span className="text-sm text-gray-500 dark:text-gray-400">{label} - 연결되지 않음</span>
                 </div>
@@ -75,19 +75,19 @@ export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
         const isConnected = browserStatus?.isConnected || false;
 
         return (
-            <div className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+            <div className="p-3 bg-theme-bg-card rounded border border-theme-border-primary">
                 <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{label}</h4>
+                    <h4 className="text-sm font-semibold text-theme-text-primary">{label}</h4>
                     <div className="flex items-center gap-2">
                         <span className={`px-2 py-1 text-xs rounded ${isConnected
                             ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                            : 'bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-400'
                             }`}>
                             {isConnected ? '활성' : '비활성'}
                         </span>
                         <button
                             onClick={() => onReopen?.(browser.uuid)}
-                            className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                            className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-900 rounded transition-colors"
                             title={`${label} 재생성`}
                         >
                             <RotateCw className="h-5 w-5" />
@@ -125,17 +125,17 @@ export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col shadow-sm min-h-0">
+        <div className="bg-theme-bg-card rounded-lg border border-theme-border-primary flex flex-col shadow-sm min-h-0">
             <div className="p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-                    <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white min-w-0">
+                    <h3 className="flex items-center gap-2 text-lg font-semibold text-theme-text-primary min-w-0">
                         <Link className="h-5 w-5 text-blue-500 dark:text-blue-400 flex-shrink-0" />
                         <span className="truncate">{pair.pairName}</span>
                     </h3>
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className={`px-2 py-1 text-xs rounded border whitespace-nowrap ${pair.status === 'active'
                             ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-600'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-600'
+                            : 'bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-800'
                             }`}>
                             {pair.status === 'active' ? '활성' : '비활성'}
                         </span>
@@ -145,7 +145,7 @@ export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
                     </div>
                 </div>
 
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-sm text-theme-text-tertiary mb-4">
                     생성일: {new Date(pair.createdAt).toLocaleString("ko-KR", {
                         year: 'numeric',
                         month: '2-digit',
@@ -155,7 +155,7 @@ export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
                     })}
                 </p>
 
-                <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+                <div className="border-t border-theme-border-primary my-4"></div>
 
                 <div className="grid grid-cols-1 gap-4">
                     <BrowserInfo browser={pair.browserA} label="브라우저 A" exchange={pair.exchangeA} />
@@ -163,10 +163,10 @@ export const BrowserProfileCard: FC<BrowserProfileCardProps> = ({
                 </div>
             </div>
 
-            <div className="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex justify-end gap-2 p-4 border-t border-theme-border-primary">
                 <button
                     onClick={() => onDelete?.(pair.pairId)}
-                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-900 rounded transition-colors"
                     title="페어 및 연결된 브라우저 정보 삭제"
                 >
                     <Trash2 className="h-4 w-4" />

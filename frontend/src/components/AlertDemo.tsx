@@ -5,7 +5,7 @@ const AlertDemo: React.FC = () => {
     const { showAlert, showConfirm, showToast } = useAlert()
 
     return (
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div className="p-6 bg-white dark:bg-black rounded-lg shadow-sm">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Alert 시스템 데모</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -55,14 +55,6 @@ function startBackendServer(): Promise<void> {
     // SQLite 데이터베이스 경로 설정
     const dbPath = path.join(__dirname, "../../", "data/db/db.sqlite");
 
-    // if (isDev) {
-    //   // 개발 모드: 프로젝트 루트의 data/db 디렉토리
-    //   dbPath = path.join(__dirname, "../../", "data/db/db.sqlite");
-    // } else {
-    //   // 프로덕션 모드: Electron resources의 data/db 디렉토리
-    //   dbPath = path.join((process as any).resourcesPath, "data/db/db.sqlite");
-    // }
-
     const env = {
       ...process.env,
       NODE_ENV: isDev ? "development" : "production",
@@ -318,28 +310,25 @@ app.on("second-instance", () => {
 });
 
 app.on("window-all-closed", () => {
-  stopBackendServer();
-  if (process.platform !== "darwin") app.quit();
+  // 맥OS에서는 창을 닫아도 앱이 계속 실행되도록 함
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
 });
 
 app.on("before-quit", () => {
-  stopBackendServer();
-});
-
-app.on("will-quit", () => {
-  stopBackendServer();
-});
-
-process.on("exit", () => {
+  // 앱이 실제로 종료되기 전에 백엔드 서버 종료
   stopBackendServer();
 });
 
 process.on("SIGINT", () => {
+  // Ctrl+C로 프로세스 종료 시
   stopBackendServer();
   app.quit();
 });
 
 process.on("SIGTERM", () => {
+  // 시스템에서 프로세스 종료 요청 시
   stopBackendServer();
   app.quit();
 });

@@ -8,9 +8,9 @@ const Header: React.FC = () => {
     const { t } = useTranslation()
 
     return (
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between drag-region">
+        <header className="bg-theme-bg-header border-b border-theme-border-primary px-6 py-4 flex items-center justify-between drag-region">
             {/* Breadcrumb */}
-            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
+            <div className="flex items-center space-x-2 text-sm text-theme-text-tertiary">
                 <span className="font-medium">ZeroBoy</span>
                 <span>/</span>
                 <span>{t('common.dashboard')}</span>
@@ -25,12 +25,12 @@ const Header: React.FC = () => {
                 <ThemeToggle />
 
                 {/* Notifications */}
-                <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700">
+                <button className="p-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-hover-bg rounded-lg transition-colors">
                     <Bell size={20} />
                 </button>
 
                 {/* Refresh */}
-                <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700">
+                <button className="p-2 text-theme-text-tertiary hover:text-theme-text-primary hover:bg-theme-hover-bg rounded-lg transition-colors">
                     <RefreshCw size={20} />
                 </button>
 
@@ -40,8 +40,8 @@ const Header: React.FC = () => {
                         U
                     </div>
                     <div className="flex items-center space-x-1">
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">{t('common.user')}</span>
-                        <ChevronDown size={16} className="text-gray-500 dark:text-gray-400" />
+                        <span className="text-sm font-medium text-theme-text-primary">{t('common.user')}</span>
+                        <ChevronDown size={16} className="text-theme-text-muted" />
                     </div>
                 </div>
             </div>
