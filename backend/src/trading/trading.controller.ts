@@ -87,13 +87,13 @@ export class TradingController {
     return await this.tradingService.updateTradingPair(id, updateData);
   }
 
-  // 거래 페어 삭제 (연결된 브라우저 정보도 함께 삭제)
+  // 거래 페어 비활성화 (데이터 영구 보존)
   @Delete("pairs/:id")
   @HttpCode(HttpStatus.OK)
   async deleteTradingPair(@Param("id") id: string) {
     await this.tradingService.deleteTradingPair(id);
     return success({
-      message: "페어와 연결된 브라우저 정보가 성공적으로 삭제되었습니다.",
+      message: "페어가 비활성화되었습니다. 브라우저 정보는 영구 보존됩니다.",
     });
   }
 
@@ -147,11 +147,14 @@ export class TradingController {
     return await this.tradingService.updateTradingCoin(id, updateData);
   }
 
-  // 거래 코인 삭제
+  // 거래 코인 비활성화 (데이터 영구 보존)
   @Delete("coins/:id")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteTradingCoin(@Param("id") id: string): Promise<void> {
-    return await this.tradingService.deleteTradingCoin(id);
+  @HttpCode(HttpStatus.OK)
+  async deleteTradingCoin(@Param("id") id: string) {
+    await this.tradingService.deleteTradingCoin(id);
+    return success({
+      message: "거래 코인이 비활성화되었습니다. 데이터는 영구 보존됩니다.",
+    });
   }
 
   // 가격 업데이트

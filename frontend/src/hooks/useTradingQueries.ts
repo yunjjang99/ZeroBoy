@@ -246,7 +246,7 @@ const tradingApi = {
     return response.json();
   },
 
-  // 거래 페어 삭제 (연결된 브라우저 정보도 함께 삭제)
+  // 거래 페어 비활성화 (데이터 영구 보존)
   deleteTradingPair: async (id: string): Promise<DeleteTradingPairResponse> => {
     const response = await fetch(
       createApiUrl(`${API_CONFIG.ENDPOINTS.TRADING.PAIRS}/${id}`),
@@ -448,7 +448,7 @@ const tradingApi = {
     return response.json();
   },
 
-  // 거래 코인 삭제
+  // 거래 코인 비활성화 (데이터 영구 보존)
   deleteTradingCoin: async (id: string): Promise<void> => {
     const response = await fetch(
       createApiUrl(`${API_CONFIG.ENDPOINTS.TRADING.COINS}/${id}`),
@@ -556,7 +556,7 @@ export const useUpdateTradingPair = () => {
   });
 };
 
-// 거래 페어 삭제 훅
+// 거래 페어 비활성화 훅 (데이터 영구 보존)
 export const useDeleteTradingPair = () => {
   const queryClient = useQueryClient();
 
@@ -683,7 +683,7 @@ export const useUpdateTradingCoin = () => {
   });
 };
 
-// 거래 코인 삭제 훅
+// 거래 코인 비활성화 훅 (데이터 영구 보존)
 export const useDeleteTradingCoin = () => {
   const queryClient = useQueryClient();
 

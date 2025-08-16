@@ -73,8 +73,19 @@ export class FingerprintService {
     });
   }
 
+  // 브라우저 지문 삭제 기능 비활성화 (데이터 영구 보존)
   async deleteFingerprint(uuid: string): Promise<boolean> {
-    const result = await this.fingerprintRepo.delete({ uuid });
+    // 데이터 영구 보존을 위해 삭제 대신 비활성화
+    const result = await this.fingerprintRepo.update(
+      { uuid },
+      {
+        isActive: false,
+        lastActiveAt: new Date(),
+      }
+    );
+    console.log(
+      `Browser fingerprint ${uuid} has been deactivated (not deleted)`
+    );
     return result.affected ? result.affected > 0 : false;
   }
 

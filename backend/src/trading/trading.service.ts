@@ -70,43 +70,25 @@ export class TradingService {
     return await this.getTradingPairById(id);
   }
 
-  // 거래 페어 삭제 (연결된 브라우저 정보도 함께 삭제)
+  // 거래 페어 비활성화 (삭제 대신 비활성화로 변경)
   async deleteTradingPair(id: string): Promise<void> {
-    // 먼저 페어 정보를 조회하여 연결된 브라우저 UUID 확인
+    // 거래 페어를 삭제하지 않고 비활성화 상태로 변경
     const tradingPair = await this.tradingPairRepository.findOne({
       where: { id },
-      select: ["id", "browserAUuid", "browserBUuid"],
     });
 
     if (!tradingPair) {
       throw new NotFoundException(`Trading pair with ID ${id} not found`);
     }
 
-    // 연결된 브라우저 정보 삭제
-    const deletePromises: Promise<boolean>[] = [];
+    // 브라우저 정보는 영구 보존하고, 거래 페어만 비활성화
+    await this.tradingPairRepository.update(id, {
+      status: PairStatus.INACTIVE,
+      isActive: false,
+      lastActiveAt: new Date(),
+    });
 
-    if (tradingPair.browserAUuid) {
-      deletePromises.push(
-        this.fingerprintService.deleteFingerprint(tradingPair.browserAUuid)
-      );
-    }
-
-    if (tradingPair.browserBUuid) {
-      deletePromises.push(
-        this.fingerprintService.deleteFingerprint(tradingPair.browserBUuid)
-      );
-    }
-
-    // 브라우저 정보 삭제 실행
-    if (deletePromises.length > 0) {
-      await Promise.all(deletePromises);
-    }
-
-    // 거래 페어 삭제
-    const result = await this.tradingPairRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Trading pair with ID ${id} not found`);
-    }
+    console.log(`Trading pair ${id} has been deactivated (not deleted)`);
   }
 
   // 거래 코인 생성
@@ -148,12 +130,16 @@ export class TradingService {
     return tradingCoin;
   }
 
-  // 거래 코인 삭제
+  // 거래 코인 비활성화 (삭제 대신 비활성화로 변경)
   async deleteTradingCoin(id: string): Promise<void> {
-    const result = await this.tradingCoinRepository.delete(id);
+    const result = await this.tradingCoinRepository.update(
+      { id },
+      { isActive: false }
+    );
     if (result.affected === 0) {
       throw new NotFoundException(`Trading coin with ID ${id} not found`);
     }
+    console.log(`Trading coin ${id} has been deactivated (not deleted)`);
   }
 
   // 브라우저 쌍으로 거래 페어 복구
@@ -392,6 +378,14 @@ export class TradingService {
         status: PairStatus.ACTIVE,
         isActive: true,
         lastActiveAt: new Date(),
+        accountInfoA:
+          accountInfo?.[
+            exchangeNameMapping[createDto.exchangeA] || createDto.exchangeA
+          ],
+        accountInfoB:
+          accountInfo?.[
+            exchangeNameMapping[createDto.exchangeB] || createDto.exchangeB
+          ],
       };
 
       const tradingPair = this.tradingPairRepository.create(tradingPairData);
