@@ -23,7 +23,7 @@ function createWindow(): void {
     mainWindow.show();
   });
 
-  mainWindow.webContents.setWindowOpenHandler((details) => {
+  mainWindow.webContents.setWindowOpenHandler((details: { url: string }) => {
     shell.openExternal(details.url);
     return { action: "deny" };
   });
@@ -47,9 +47,12 @@ app.whenReady().then(() => {
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/quick-start/tree/master/packages/main-process#devtools
-  app.on("browser-window-created", (_, window) => {
-    optimizer.watchWindowShortcuts(window);
-  });
+  app.on(
+    "browser-window-created",
+    (_: Electron.Event, window: BrowserWindow) => {
+      optimizer.watchWindowShortcuts(window);
+    }
+  );
 
   createWindow();
 

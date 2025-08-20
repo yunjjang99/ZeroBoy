@@ -14,9 +14,9 @@
   "author": "yunjjang",
   "license": "ISC",
   "devDependencies": {
-    "@types/electron": "^1.6.10",
+    "@electron-toolkit/utils": "^4.0.0",
     "@types/minimatch": "^5.1.2",
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.19.11",
     "electron": "^37.2.5",
     "electron-builder": "^24.13.3",
     "electron-packager": "^15.3.0",

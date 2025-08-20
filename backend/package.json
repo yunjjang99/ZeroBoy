@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "check-node-version": "node -e \"const version = process.versions.node.split('.'); const [major, minor, patch] = version.map(v => parseInt(v, 10)); if (major !== 20 || minor !== 16 || patch !== 0) { console.error(`Required Node.js version is 20.16.0, but found ${process.versions.node}`); process.exit(1); }\"",
+    "check-node-version": "node -e \"const version = process.versions.node.split('.'); const [major, minor, patch] = version.map(v => parseInt(v, 10)); if (major !== 20 || minor !== 16 || patch !== 0) { console.error('Required Node.js version is 20.16.0, but found ' + process.versions.node); process.exit(1); }\"",
     "prebuild": "npm run check-node-version",
     "prestart": "npm run check-node-version",
     "prestart:dev": "npm run check-node-version",

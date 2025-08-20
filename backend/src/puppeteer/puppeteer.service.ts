@@ -1,40 +1,14 @@
 // src/puppeteer/puppeteer.service.ts
 import { Injectable, OnModuleDestroy, Logger } from "@nestjs/common";
-import { Browser, Page, CDPSession } from "puppeteer-core";
+import { Browser, Page } from "puppeteer-core";
 import {
   generateRandomFingerprintForKorea,
   applyFingerprint,
 } from "../utils/fingerprintGenerator";
 import { FingerprintService } from "@/fingerprint/fingerprint.service";
-import * as fs from "fs";
-import * as path from "path";
-import { Buffer } from "buffer";
 
-import { XTTickerFormatter } from "../formatters/XT/xt-ticker.formatter";
-import { XTOrderbookFormatter } from "src/formatters/XT/xt-orderbook.formatter";
-import { LbankTickerFormatter } from "../formatters/LBANK/lbank-ticker.formatter";
-import { LbankOrderbookFormatter } from "../formatters/LBANK/lbank-orderbook.formatter";
-import { LbankTradeFormatter } from "../formatters/LBANK/lbank-trade.formatter";
-import { BitmartOrderbookFormatter } from "src/formatters/BITMART/bitmart-orderbook.formatter";
-import { BitmartTradeFormatter } from "src/formatters/BITMART/bitmart-trade.formatter";
-import { BitmartTickerFormatter } from "src/formatters/BITMART/bitmart-ticker.formmater";
-// Unified 메시지 인터페이스 및 Enum 임포트
-import { Exchange, MarketMessageType } from "src/interface/enum";
-import { LbankOrderFormatter } from "src/formatters/LBANK/lbank-order.fommater";
-
-import * as LbankExchange from "./exchange/lbank";
-import * as BitmartExchange from "./exchange/bitmart";
-
-import { AscendexTickerFormatter } from "src/formatters/ASCENDEX/ascendex-ticker.fomatter";
-import { AscendexOrderbookFormatter } from "src/formatters/ASCENDEX/ascendex-orderbook";
-import { AscendexTradeFormatter } from "src/formatters/ASCENDEX/ascendex-trade.formatter";
-import { TradeOrderData } from "src/interface/elementParse.interface";
 import { PuppeteerGateway } from "./puppeteer.gateway";
 
-interface WebSocketMessage {
-  topic?: string;
-  [key: string]: unknown;
-}
 export interface PuppeteerInstance {
   browser: Browser;
   uuid: string;
@@ -47,297 +21,8 @@ export class PuppeteerService implements OnModuleDestroy {
     private readonly puppeteerGateway: PuppeteerGateway
   ) {}
 
-  private latestMessages: { [key: string]: string } = {}; // 최신 로그 메시지 저장
-  private xtTickerFormatter = new XTTickerFormatter();
-  private xtOderbookFormatter = new XTOrderbookFormatter();
-  // 2. Lbank 포매터 인스턴스 생성
-  private lbankTickerFormatter = new LbankTickerFormatter();
-  private lbankOrderbookFormatter = new LbankOrderbookFormatter();
-  private lbankTradeFormatter = new LbankTradeFormatter();
-  private lbankOrderFormatter = new LbankOrderFormatter();
-  //3. Bitmart 포매터 인스턴스 생성
-  private bitmartTickerFormatter = new BitmartOrderbookFormatter();
-  private bitmartOrderbookFormatter = new BitmartOrderbookFormatter();
-  private bitmartTradeFormatter = new BitmartTradeFormatter();
-  // 4. Ascendex 포매터 인스턴스 생성
-  private ascendexTickerFormatter = new AscendexTickerFormatter();
-  private ascendexOrderbookFormatter = new AscendexOrderbookFormatter();
-  private ascendexTradeFormatter = new AscendexTradeFormatter();
-
   private readonly logger = new Logger(PuppeteerService.name);
   private readonly browsers = new Map<string, Browser>();
-
-  private getRawLogFilePath(
-    exchange: "LBANK" | "BITMART" | "ASCENDEX" | "OTHER" | "ORANGEX" | "BYDFI"
-  ): string {
-    switch (exchange) {
-      case "LBANK":
-        return path.resolve(__dirname, "../../logs/LBANK/raw.txt");
-      case "BITMART":
-        return path.resolve(__dirname, "../../logs/BITMART/raw.txt");
-      case "ASCENDEX":
-        return path.resolve(__dirname, "../../logs/ASCENDEX/raw.txt");
-      case "ORANGEX":
-        return path.resolve(__dirname, "../../logs/ORANGEX/raw.txt");
-      case "BYDFI":
-        return path.resolve(__dirname, "../../logs/BYDFI/raw.txt");
-      default:
-        return path.resolve(__dirname, "../../logs/OTHER/raw.txt");
-    }
-  }
-
-  // 각 거래소별, 메시지 타입별 로그 파일 경로 설정
-  private readonly logFilePaths: Partial<
-    Record<Exchange, Record<MarketMessageType, string>>
-  > = {
-    [Exchange.XT]: {
-      [MarketMessageType.TICKER]: path.resolve(
-        __dirname,
-        "../../logs/XT/xt_ticker.txt"
-      ),
-      [MarketMessageType.TRADE]: path.resolve(
-        __dirname,
-        "../../logs/XT/xt_trade.txt"
-      ),
-      [MarketMessageType.ORDERBOOK]: path.resolve(
-        __dirname,
-        "../../logs/XT/xt_orderbook.txt"
-      ),
-      [MarketMessageType.ORDER]: path.resolve(
-        __dirname,
-        "../../logs/XT/xt_orderbook.txt"
-      ),
-    },
-    [Exchange.LBANK]: {
-      [MarketMessageType.TICKER]: path.resolve(
-        __dirname,
-        "../../logs/LBANK/lbank_ticker.txt"
-      ),
-      [MarketMessageType.TRADE]: path.resolve(
-        __dirname,
-        "../../logs/LBANK/lbank_trade.txt"
-      ),
-      [MarketMessageType.ORDERBOOK]: path.resolve(
-        __dirname,
-        "../../logs/LBANK/lbank_orderbook.txt"
-      ),
-      [MarketMessageType.ORDER]: path.resolve(
-        __dirname,
-        "../../logs/LBANK/lbank_order.txt"
-      ),
-    },
-    [Exchange.BITMART]: {
-      [MarketMessageType.TICKER]: path.resolve(
-        __dirname,
-        "../../logs/BITMART/bitmart_ticker.txt"
-      ),
-      [MarketMessageType.TRADE]: path.resolve(
-        __dirname,
-        "../../logs/BITMART/bitmart_trade.txt"
-      ),
-      [MarketMessageType.ORDERBOOK]: path.resolve(
-        __dirname,
-        "../../logs/BITMART/bitmart_orderbook.txt"
-      ),
-      [MarketMessageType.ORDER]: path.resolve(
-        __dirname,
-        "../../logs/BITMART/bitmart_order.txt"
-      ),
-    },
-    [Exchange.ASCENDEX]: {
-      [MarketMessageType.TICKER]: path.resolve(
-        __dirname,
-        "../../logs/ASCENDEX/ascendex_ticker.txt"
-      ),
-      [MarketMessageType.TRADE]: path.resolve(
-        __dirname,
-        "../../logs/ASCENDEX/ascendex_trade.txt"
-      ),
-      [MarketMessageType.ORDERBOOK]: path.resolve(
-        __dirname,
-        "../../logs/ASCENDEX/ascendex_orderbook.txt"
-      ),
-      [MarketMessageType.ORDER]: path.resolve(
-        __dirname,
-        "../../logs/ASCENDEX/ascendex_order.txt"
-      ),
-    },
-  };
-
-  private logUnifiedMessage(message: any): void {
-    const exchange = message.exchange;
-    const messageType = message.type;
-    const filePath =
-      this.logFilePaths[exchange] && this.logFilePaths[exchange][messageType];
-    if (!filePath) {
-      console.warn(
-        `로그 파일 경로 미정의: exchange=${exchange}, type=${messageType}`
-      );
-      return;
-    }
-
-    let logMessage = "";
-    switch (messageType) {
-      case MarketMessageType.TICKER: {
-        const ticker = message as any;
-        logMessage = `[${ticker.timestamp}] ${ticker.exchange} TICKER | Symbol: ${ticker.symbol} | CurrentPrice: ${ticker.currentPrice} | LastTradePrice: ${ticker.lastTradePrice}\n`;
-        break;
-      }
-      case MarketMessageType.TRADE: {
-        const trade = message as any;
-        logMessage = `[${trade.timestamp}] ${trade.exchange} TRADE | Symbol: ${trade.symbol} | TradePrice: ${trade.tradePrice} | TradeVolume: ${trade.tradeVolume} | TradeSide: ${trade.tradeSide}\n`;
-        break;
-      }
-      case MarketMessageType.ORDERBOOK: {
-        const orderbook = message as any;
-        logMessage = `[${orderbook.timestamp}] ${orderbook.exchange} ORDERBOOK | Symbol: ${orderbook.symbol} | BestBid: ${orderbook.bestBidPrice} (${orderbook.bestBidVolume}) | BestAsk: ${orderbook.bestAskPrice} (${orderbook.bestAskVolume}) | CurrentPrice: ${orderbook.currentPrice}\n`;
-        break;
-      }
-      case MarketMessageType.ORDER: {
-        const order = message as any;
-        logMessage = `[${order.timestamp}] ${order.exchange} ORDER | Symbol: ${order.instrument} | ExecutedPrice: ${order.executedPrice} | ExecutedVolume: ${order.executedVolume} | OrderSide: ${order.orderSide} | PositionSide: ${order.positionSide}\n`;
-        break;
-      }
-
-      default:
-        console.warn(`알 수 없는 메시지 타입: ${messageType}`);
-        return;
-    }
-
-    // exchange와 messageType을 키로 하여 최신 로그 메시지를 메모리에 저장합니다.
-    const key = `${exchange}-${messageType}`;
-    this.latestMessages[key] = logMessage;
-
-    try {
-      fs.appendFileSync(filePath, logMessage, "utf8");
-    } catch (error) {
-      console.error(`로그 기록 실패 (파일: ${filePath}):`, error);
-    }
-  }
-
-  public getLatestMessages(): { [key: string]: string } {
-    return this.latestMessages;
-  }
-
-  private async handleFetchResponse(
-    cdp: CDPSession,
-    params: any,
-    siteUrl: string
-  ): Promise<void> {
-    const { response, requestId } = params;
-
-    // JSON 응답만 처리 (필요에 따라 조건 확장 가능)
-    if (response.mimeType && response.mimeType.includes("application/json")) {
-      try {
-        const responseBody = await cdp.send("Network.getResponseBody", {
-          requestId,
-        });
-        const rawData = responseBody.body;
-        if (!rawData) return;
-
-        let parsed: any;
-        try {
-          parsed = JSON.parse(rawData);
-        } catch (err) {
-          // JSON 파싱 실패 시 무시
-          return;
-        }
-
-        // 기타 fetch 응답 처리 (필요 시 추가)
-        const unifiedMessage = this.formatMessage(parsed, siteUrl);
-        if (unifiedMessage) {
-          // this.logUnifiedMessage(unifiedMessage);
-          // this.server.emit("tradeData", unifiedMessage);
-        }
-      } catch (err) {
-        // console.error("Fetch response 처리 중 에러 발생:", err);
-      }
-    }
-  }
-
-  private appendRawLog(
-    exchange: "LBANK" | "BITMART" | "OTHER" | "ASCENDEX" | "ORANGEX" | "BYDFI",
-    logMessage: string
-  ): void {
-    const filePath = this.getRawLogFilePath(exchange);
-    // 디렉토리 없으면 생성 (이미 ensureLogFileAt가 있다면 재활용 가능)
-    const logDir = path.dirname(filePath);
-    if (!fs.existsSync(logDir)) {
-      fs.mkdirSync(logDir, { recursive: true });
-    }
-    // 로그 파일에 문자열 추가
-    fs.appendFileSync(filePath, logMessage + "\n", "utf8");
-  }
-
-  private formatMessage(message: any, siteUrl: string): any | null {
-    if (siteUrl.includes("lbank.com")) {
-      if (message.name === "SendOrderInsert") {
-        console.log(message, "message name sendorderinsert");
-        return this.lbankOrderFormatter.format(message);
-      }
-
-      if (message.d) {
-        // 만약 d가 배열이면 기존 로직대로 처리
-        if (Array.isArray(message.d)) {
-          const ticker = this.lbankTickerFormatter.format(message);
-          if (ticker) return ticker;
-        }
-        // d가 객체인 경우 ticker에 필요한 키가 있는지 확인 후 배열로 감싸서 전달
-        else if (typeof message.d === "object") {
-          const { a, i, u, k } = message.d;
-          if (a && i && (u || k)) {
-            const ticker = this.lbankTickerFormatter.format({
-              ...message,
-              d: [message.d],
-            });
-            if (ticker) return ticker;
-          }
-        }
-      }
-      // Orderbook 메시지 (예: message.b와 message.s가 존재하는 경우)
-      if (message.b && message.s) {
-        return this.lbankOrderbookFormatter.format(message);
-      }
-      // Trade 메시지 (추가 조건이 있다면 Trade 포매터를 호출)
-      if (message.d && typeof message.d === "object") {
-        return this.lbankTradeFormatter.format(message);
-      }
-    } else if (siteUrl.includes("ascendex.com")) {
-      // Ascendex의 경우, 메시지의 "m" 필드를 기준으로 처리합니다.
-      switch (message.m) {
-        case "ticker":
-          return this.ascendexTickerFormatter.format(message);
-        case "depth":
-          return this.ascendexOrderbookFormatter.format(message);
-        case "trades":
-          return this.ascendexTradeFormatter.format(message);
-        // case "order":
-        //   return this.ascendexOrderFormatter.format(message);
-        default:
-          //  console.warn("Ascendex: 알 수 없는 메시지 타입", message.m);
-          return null;
-      }
-    } else if (siteUrl.includes("bitmart.com")) {
-      if (message.group) {
-        if (message.group.startsWith("Ticker")) {
-          return this.bitmartTickerFormatter.format(message);
-        } else if (message.group.startsWith("Depth")) {
-          return this.bitmartOrderbookFormatter.format(message);
-        } else if (message.group.startsWith("Trade")) {
-          return this.bitmartTradeFormatter.format(message);
-        }
-      }
-      return;
-    } else if (siteUrl.includes("xt.com")) {
-      if (message.topic === "ticker") {
-        return this.xtTickerFormatter.format(message);
-      } else if (message.topic === "depth_update") {
-        return this.xtOderbookFormatter.format(message);
-      }
-    }
-
-    return null;
-  }
 
   async createBrowser(
     siteUrl: string,
@@ -356,7 +41,46 @@ export class PuppeteerService implements OnModuleDestroy {
     const { browser, page }: { browser: Browser; page: Page } = await connect({
       headless: false,
       executablePath: process.env.CHROME_PATH,
-      args: [],
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--no-first-run",
+        "--no-zygote",
+        "--disable-background-timer-throttling",
+        "--disable-backgrounding-occluded-windows",
+        "--disable-renderer-backgrounding",
+        "--disable-features=TranslateUI",
+        "--disable-ipc-flooding-protection",
+        "--enable-features=NetworkService,NetworkServiceLogging",
+        "--force-color-profile=srgb",
+        "--metrics-recording-only",
+        "--disable-default-apps",
+        "--disable-extensions",
+        "--disable-plugins",
+        "--disable-images=false",
+        "--disable-javascript=false",
+        "--disable-web-security=false",
+        "--allow-running-insecure-content",
+        "--disable-blink-features=AutomationControlled",
+        "--disable-features=VizDisplayCompositor",
+        "--disable-software-rasterizer",
+        "--disable-gpu-sandbox",
+        "--disable-accelerated-2d-canvas",
+        "--disable-accelerated-video-decode",
+        "--disable-accelerated-video-encode",
+        "--disable-accelerated-mjpeg-decode",
+        "--disable-accelerated-video",
+        "--disable-gpu-memory-buffer-video-frames",
+        "--disable-gpu-memory-buffer-compositor-resources",
+        "--disable-gpu-memory-buffer",
+        "--disable-gpu-memory-buffer-cdm",
+        "--disable-gpu-memory-buffer-dxgi",
+        "--disable-gpu-memory-buffer-shared-images",
+        "--disable-gpu-memory-buffer-video-capture",
+        "--disable-gpu-memory-buffer-webgl",
+        "--disable-gpu-memory-buffer-2d-canvas",
+      ],
       customConfig: {
         defaultViewport: null,
       },
@@ -493,7 +217,29 @@ export class PuppeteerService implements OnModuleDestroy {
     const { browser, page }: { browser: Browser; page: Page } = await connect({
       headless: false,
       executablePath: process.env.CHROME_PATH,
-      args: [],
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--no-first-run",
+        "--no-zygote",
+        "--disable-background-timer-throttling",
+        "--disable-backgrounding-occluded-windows",
+        "--disable-renderer-backgrounding",
+        "--disable-features=TranslateUI",
+        "--disable-ipc-flooding-protection",
+        "--enable-features=NetworkService,NetworkServiceLogging",
+        "--force-color-profile=srgb",
+        "--metrics-recording-only",
+        "--disable-default-apps",
+        "--disable-extensions",
+        "--disable-plugins",
+        "--disable-images=false",
+        "--disable-javascript=false",
+        "--disable-web-security=false",
+        "--allow-running-insecure-content",
+        "--disable-blink-features=AutomationControlled",
+      ],
       customConfig: {
         defaultViewport: null,
       },
@@ -696,129 +442,6 @@ export class PuppeteerService implements OnModuleDestroy {
     } catch (error) {
       this.logger.error("브라우저 종료 중 오류:", error);
     }
-  }
-
-  private async enableCDPNetwork(
-    page: Page,
-    siteUrl: string
-  ): Promise<CDPSession> {
-    const cdp = await page.target().createCDPSession();
-    await cdp.send("Network.enable");
-
-    // 1) 모든 요청(Request)에 대한 이벤트
-    cdp.on("Network.requestWillBeSent", (params) => {
-      const { request } = params;
-      const url = request.url || "";
-
-      if (url.includes("bitmart.com")) {
-        console.log(`[BITMART Request] ${url}`);
-        this.appendRawLog("BITMART", `[Request] ${url}`);
-      } else if (url.includes("lbank.com")) {
-        console.log(`[LBANK Request] ${url}`);
-        this.appendRawLog("LBANK", `[Request] ${url}`);
-      } else if (url.includes("ascendex.com")) {
-        console.log(`[ASCENDEX Request] ${url}`);
-        this.appendRawLog("ASCENDEX", `[Request] ${url}`);
-      } else if (url.includes("orangex.com")) {
-        console.log(`[ORANGEX Request] ${url}`);
-        this.appendRawLog("ORANGEX", `[Request] ${url}`);
-      } else if (url.includes("bydfi.com")) {
-        console.log(`[bydfi Request] ${url}`);
-        this.appendRawLog("BYDFI", `[Request] ${url}`);
-      } else {
-        console.log(`[OTHER Request] ${url}`);
-        this.appendRawLog("OTHER", `[Request] ${url}`);
-      }
-    });
-
-    // 2) 모든 응답(Response)에 대한 이벤트
-    cdp.on("Network.responseReceived", async (params) => {
-      const { response } = params;
-      const { url, status, mimeType } = response;
-
-      let exchange:
-        | "LBANK"
-        | "BITMART"
-        | "ASCENDEX"
-        | "ORANGEX"
-        | "BYDFI"
-        | "OTHER" = "OTHER";
-      if (url.includes("bitmart.com")) {
-        exchange = "BITMART";
-      } else if (url.includes("lbank.com")) {
-        exchange = "LBANK";
-      } else if (url.includes("ascendex.com")) {
-        exchange = "ASCENDEX";
-      } else if (url.includes("orangex.com")) {
-        exchange = "ORANGEX";
-      } else if (url.includes("bydfi.com")) {
-        exchange = "BYDFI";
-      }
-      this.appendRawLog(
-        exchange,
-        `[Response] url: ${url}, status: ${status}, mimeType: ${mimeType}`
-      );
-
-      // JSON 응답이면 바디도 저장
-      try {
-        if (mimeType.includes("application/json")) {
-          const responseBody = await cdp.send("Network.getResponseBody", {
-            requestId: params.requestId,
-          });
-          const rawData = responseBody.body || "";
-          // 필요하다면 파일에 Raw Body 로깅
-          this.appendRawLog(exchange, `[Response Body] ${rawData}`);
-        }
-      } catch (error) {
-        // console.error("응답 바디 조회 중 에러:", error);
-      }
-    });
-
-    cdp.on("Network.webSocketCreated", (params) => {
-      // 필요시 추가 로직 구현
-    });
-
-    cdp.on("Network.webSocketFrameReceived", (params) => {
-      const { opcode, payloadData } = params.response;
-      let rawData = payloadData;
-      if (opcode === 2) {
-        try {
-          rawData = Buffer.from(payloadData, "base64").toString("utf-8");
-        } catch (err) {
-          console.error("Base64 디코딩 실패:", err);
-          return;
-        }
-      }
-
-      let parsed: WebSocketMessage;
-      try {
-        parsed = JSON.parse(rawData);
-        console.log(parsed);
-      } catch {
-        // console.log(`JSON 파싱 불가 데이터: ${rawData}`);
-        return;
-      }
-
-      if (siteUrl.includes("xt.com")) {
-        if (parsed.topic !== "ticker" && parsed.topic !== "depth_update") {
-          return;
-        }
-      }
-      const unifiedMessage = this.formatMessage(parsed, siteUrl);
-      if (unifiedMessage) {
-        // this.monitorAndClosePositions();
-        this.puppeteerGateway.emit("socketData", unifiedMessage);
-      } else {
-        // console.log("포맷팅 실패 또는 처리 대상 메시지가 아님:", rawData);
-      }
-    });
-
-    // fetch 응답 수신 이벤트 등록
-    cdp.on("Network.responseReceived", async (params) => {
-      await this.handleFetchResponse(cdp, params, siteUrl);
-    });
-
-    return cdp;
   }
 
   async getBrowserStatus(uuid: string): Promise<{
