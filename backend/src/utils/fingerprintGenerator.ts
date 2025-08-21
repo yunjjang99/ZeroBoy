@@ -106,78 +106,18 @@ const GPU_DATABASE = {
   ],
 };
 
+// 🚨 실제 Chrome 버전과 일치하는 User-Agent만 사용 (최신 버전들)
 const USER_AGENTS = [
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.6829.66 Safari/537.36",
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.6826.74 Safari/537.36",
-  //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.6784.85 Safari/537.36",
-  //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 QuarkPC/4.2.5.446",
-  "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 AVG Secure Browser/120.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.225 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.6478.127 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.2420.81",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0",
-  // // 추가된 Win32 기반 User-Agent 목록 (Cloudflare 우회 검증됨)
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.92 Safari/537.36",
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36",
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.86 Safari/537.36",
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6481.77 Safari/537.36",
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.6532.30 Safari/537.36",
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.6836.78 Safari/537.36",
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.6876.20 Safari/537.36",
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.6962.62 Safari/537.36",
-  // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.6996.101 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
 ];
 
 const getRandomCoordinate = (min: number, max: number) => {
@@ -239,16 +179,18 @@ export async function generateRandomFingerprintForKorea(publicIp: string) {
   return {
     userAgent,
     language: "ko-KR",
-    languages: ["ko-KR", "ko"],
+    languages: ["ko-KR", "ko", "en-US", "en"],
     timezone: "Asia/Seoul",
     platform: "Win32",
-    hardwareConcurrency: [2, 4, 8][Math.floor(Math.random() * 3)],
+    hardwareConcurrency: [2, 4, 8, 12, 16][Math.floor(Math.random() * 5)],
     colorDepth: [24, 30][Math.floor(Math.random() * 2)],
     screenResolution: [
       { width: 1920, height: 1080 },
       { width: 1600, height: 900 },
       { width: 1366, height: 768 },
-    ][Math.floor(Math.random() * 3)],
+      { width: 2560, height: 1440 },
+      { width: 1440, height: 900 },
+    ][Math.floor(Math.random() * 5)],
     gpuVendor: vendor,
     gpuModel: model,
     webdriver: false,
@@ -270,21 +212,171 @@ export async function applyFingerprint(
   });
 
   await page.evaluateOnNewDocument((fp) => {
-    // 기본 navigator 속성 오버라이드
-    Object.defineProperty(navigator, "language", { get: () => fp.language });
-    Object.defineProperty(navigator, "languages", { get: () => fp.languages });
-    Object.defineProperty(navigator, "platform", { get: () => fp.platform });
-    Object.defineProperty(navigator, "hardwareConcurrency", {
-      get: () => fp.hardwareConcurrency,
+    // �� Dolphin Anty 스타일의 완전한 webdriver 숨김
+    // 1. 즉시 모든 자동화 흔적 제거 (페이지 로드 전)
+    const removeAutomationTraces = () => {
+      // webdriver 속성 완전 제거
+      delete (navigator as any).webdriver;
+      delete (window as any).webdriver;
+      delete (document as any).webdriver;
+      delete (globalThis as any).webdriver;
+
+      // Object.defineProperty로 완전 차단
+      const defineUndefined = (obj: any, prop: string) => {
+        try {
+          Object.defineProperty(obj, prop, {
+            get: () => undefined,
+            set: () => {},
+            configurable: true,
+            enumerable: false,
+          });
+        } catch (e) {
+          // 이미 정의된 경우 무시
+        }
+      };
+
+      defineUndefined(navigator, "webdriver");
+      defineUndefined(window, "webdriver");
+      defineUndefined(document, "webdriver");
+      defineUndefined(globalThis, "webdriver");
+
+      // 프로토타입 체인에서 완전 제거
+      let currentProto = (navigator as any).__proto__;
+      while (currentProto) {
+        if (currentProto.hasOwnProperty("webdriver")) {
+          delete currentProto.webdriver;
+        }
+        currentProto = currentProto.__proto__;
+      }
+    };
+
+    // 즉시 실행
+    removeAutomationTraces();
+
+    // 2. Dolphin Anty 스타일의 확장된 자동화 속성 제거
+    const automationProps = [
+      "webdriver",
+      "selenium",
+      "puppeteer",
+      "headless",
+      "automation",
+      "bot",
+      "crawler",
+      "_selenium",
+      "_webdriver_evaluate",
+      "_webdriver_script_func",
+      "_webdriver_script_func_result",
+      "_webdriver_script_params",
+      "_$cdc_asdjflasutopfhvcZLmcfl_",
+      "_$chrome_asyncScriptInfo",
+      "domAutomation",
+      "domAutomationController",
+      "_phantom",
+      "callPhantom",
+      "phantom",
+      "awesomium",
+      "nightmare",
+      "webdriver-evaluate",
+      "webdriver-evaluate-result",
+      "webdriver-script-evaluate",
+      "webdriver-script-evaluate-result",
+      "webdriver-script-function",
+      "webdriver-script-params",
+      "webdriver-script-result",
+      "webdriver-script-result-type",
+      "webdriver-script-result-value",
+      "webdriver-script-result-error",
+      "webdriver-script-result-error-message",
+      "webdriver-script-result-error-stack",
+      "webdriver-script-result-error-name",
+      "webdriver-script-result-error-lineNumber",
+      "webdriver-script-result-error-columnNumber",
+      "webdriver-script-result-error-fileName",
+      "webdriver-script-result-error-cause",
+      "webdriver-script-result-error-cause-message",
+      "webdriver-script-result-error-cause-stack",
+      "webdriver-script-result-error-cause-name",
+      "webdriver-script-result-error-cause-lineNumber",
+      "webdriver-script-result-error-cause-columnNumber",
+      "webdriver-script-result-error-cause-fileName",
+    ];
+
+    // 모든 객체에서 자동화 속성 제거
+    const objects = [navigator, window, document, globalThis];
+    objects.forEach((obj) => {
+      automationProps.forEach((prop) => {
+        if ((obj as any)[prop] !== undefined) {
+          delete (obj as any)[prop];
+          Object.defineProperty(obj, prop, {
+            get: () => undefined,
+            set: () => {},
+            configurable: true,
+            enumerable: false,
+          });
+        }
+      });
     });
 
-    // 🚨 중요: webdriver 속성 완전 제거
-    delete (navigator as any).webdriver;
-    Object.defineProperty(navigator, "webdriver", {
-      get: () => undefined,
+    // 3. Dolphin Anty 스타일의 toString 완전 오버라이드
+    const originalToString = Object.prototype.toString;
+    Object.prototype.toString = function () {
+      const str = originalToString.call(this);
+      const automationKeywords = [
+        "webdriver",
+        "selenium",
+        "puppeteer",
+        "phantom",
+        "nightmare",
+        "awesomium",
+        "automation",
+        "bot",
+      ];
+
+      if (automationKeywords.some((keyword) => str.includes(keyword))) {
+        return "[object Object]";
+      }
+      return str;
+    };
+
+    const originalFunctionToString = Function.prototype.toString;
+    Function.prototype.toString = function () {
+      const str = originalFunctionToString.call(this);
+      const automationKeywords = [
+        "webdriver",
+        "selenium",
+        "puppeteer",
+        "phantom",
+        "nightmare",
+        "awesomium",
+        "automation",
+        "bot",
+      ];
+
+      if (automationKeywords.some((keyword) => str.includes(keyword))) {
+        return "function () { [native code] }";
+      }
+      return str;
+    };
+
+    // 4. 실제 사용자처럼 보이도록 최소한의 속성만 수정
+    Object.defineProperty(navigator, "language", {
+      get: () => fp.language,
       configurable: true,
     });
-    // Chrome 객체 시뮬레이션
+    Object.defineProperty(navigator, "languages", {
+      get: () => fp.languages,
+      configurable: true,
+    });
+    Object.defineProperty(navigator, "platform", {
+      get: () => fp.platform,
+      configurable: true,
+    });
+    Object.defineProperty(navigator, "hardwareConcurrency", {
+      get: () => fp.hardwareConcurrency,
+      configurable: true,
+    });
+
+    // 5. Chrome 객체는 실제 브라우저처럼 설정
     if (!(window as any).chrome) {
       Object.defineProperty(window, "chrome", {
         value: {
@@ -297,7 +389,7 @@ export async function applyFingerprint(
       });
     }
 
-    // Permissions API 시뮬레이션
+    // 6. Permissions API는 실제 브라우저처럼 설정
     if (!navigator.permissions) {
       Object.defineProperty(navigator, "permissions", {
         value: {
@@ -309,16 +401,30 @@ export async function applyFingerprint(
       });
     }
 
-    // Screen 속성 오버라이드
-    Object.defineProperty(screen, "colorDepth", { get: () => fp.colorDepth });
-    Object.defineProperty(screen, "width", {
-      get: () => fp.screenResolution.width,
-    });
-    Object.defineProperty(screen, "height", {
-      get: () => fp.screenResolution.height,
+    // 7. Screen 속성은 실제 화면 크기와 일치하도록 설정
+    const actualScreen = {
+      width: window.screen.width,
+      height: window.screen.height,
+      colorDepth: window.screen.colorDepth,
+    };
+
+    // 실제 화면 크기와 fingerprint 크기가 다르면 실제 크기 사용
+    if (
+      actualScreen.width !== fp.screenResolution.width ||
+      actualScreen.height !== fp.screenResolution.height
+    ) {
+      fp.screenResolution = {
+        width: actualScreen.width,
+        height: actualScreen.height,
+      };
+    }
+
+    Object.defineProperty(screen, "colorDepth", {
+      get: () => fp.colorDepth,
+      configurable: true,
     });
 
-    // WebGL 핑거프린팅 방지
+    // 8. WebGL은 최소한의 수정만
     const originalGetParameter = WebGLRenderingContext.prototype.getParameter;
     WebGLRenderingContext.prototype.getParameter = function (param) {
       if (param === 37445) return fp.gpuVendor;
@@ -326,21 +432,15 @@ export async function applyFingerprint(
       return originalGetParameter.call(this, param);
     };
 
-    // Canvas 핑거프린팅 방지 (최소한의 수정)
-    const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
-    HTMLCanvasElement.prototype.toDataURL = function (...args) {
-      // 원본 동작을 그대로 유지하되, 핑거프린팅만 방지
-      return originalToDataURL.apply(this, args);
-    };
-
-    // Timezone 설정
+    // 9. Timezone 설정
     Object.defineProperty(Intl.DateTimeFormat.prototype, "resolvedOptions", {
       value: function () {
         return { timeZone: fp.timezone };
       },
+      configurable: true,
     });
 
-    // Geolocation 시뮬레이션
+    // 10. Geolocation 시뮬레이션
     const coords = {
       latitude: fp.latitude,
       longitude: fp.longitude,
@@ -373,7 +473,6 @@ export async function applyFingerprint(
       success: PositionCallback,
       error?: PositionErrorCallback
     ) => {
-      // 약간의 지연을 추가하여 자연스러운 동작 시뮬레이션
       setTimeout(
         () => {
           success(position as GeolocationPosition);
@@ -399,53 +498,39 @@ export async function applyFingerprint(
     navigator.geolocation.getCurrentPosition = getCurrentPosition;
     navigator.geolocation.watchPosition = watchPosition;
 
-    // 🚨 추가: 자동화 감지 방지
-    // Function.prototype.toString 오버라이드
-    const originalToString = Function.prototype.toString;
-    Function.prototype.toString = function () {
-      const str = originalToString.call(this);
-      if (str.includes("native code")) {
-        return str;
+    // 11. Chrome 버전 일치 확인
+    const userAgentVersion = navigator.userAgent.match(/Chrome\/(\d+)/);
+    if (userAgentVersion) {
+      const version = userAgentVersion[1];
+      if (!navigator.userAgent.includes(`Chrome/${version}`)) {
+        Object.defineProperty(navigator, "userAgent", {
+          get: () =>
+            navigator.userAgent.replace(/Chrome\/\d+/, `Chrome/${version}`),
+          configurable: true,
+        });
       }
-      // Puppeteer 관련 문자열 제거
-      return str.replace(/\[native code\]/g, "function () { [native code] }");
+    }
+
+    // 12. 자동화 감지 스크립트 무력화
+    const originalQuerySelector = document.querySelector;
+    document.querySelector = function (selector) {
+      if (typeof selector === "string" && selector.includes("webdriver")) {
+        return null;
+      }
+      return originalQuerySelector.call(this, selector);
     };
 
-    // Proxy 감지 방지 - 실제 Proxy 객체는 유지하되 감지만 방지
-    // 실제 웹사이트에서 Proxy를 사용하므로 삭제하지 않음
+    // 13. 지속적인 webdriver 제거 (Dolphin Anty 스타일)
+    setInterval(removeAutomationTraces, 1000);
 
-    // 자동화 감지 스크립트 무력화
-    const automationDetectors = [
-      "webdriver",
-      "selenium",
-      "puppeteer",
-      "headless",
-      "automation",
-      "bot",
-      "crawler",
-    ];
+    // 14. 페이지 로드 완료 후 추가 정리
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", removeAutomationTraces);
+    } else {
+      removeAutomationTraces();
+    }
 
-    automationDetectors.forEach((detector) => {
-      Object.defineProperty(window, detector, {
-        get: () => undefined,
-        configurable: true,
-      });
-    });
-
-    // 🚨 중요: Performance API 조작
-    const originalGetEntries = Performance.prototype.getEntries;
-    Performance.prototype.getEntries = function () {
-      const entries = originalGetEntries.call(this);
-      // 자동화 관련 엔트리 필터링
-      return entries.filter(
-        (entry) =>
-          !entry.name.includes("puppeteer") && !entry.name.includes("webdriver")
-      );
-    };
-
-    // 🚨 최소한의 필수 방어만 적용 (실제 사용자처럼)
-    // WebDriver 속성만 제거하고 나머지는 정상 작동
-    // 실제 사용자는 이런 방어가 없으므로 최소화
+    window.addEventListener("load", removeAutomationTraces);
   }, fingerprint);
 
   // 쿠키 정리

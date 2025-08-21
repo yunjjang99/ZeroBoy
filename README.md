@@ -1,220 +1,203 @@
-# ZeroBoy Desktop Application
+# ZeroBoy - Advanced Anti-Detection Browser Management System
 
-ZeroBoy는 암호화폐 헤징 및 차익거래 봇을 위한 데스크톱 애플리케이션입니다. 일렉트론 기반으로 구축되어 백엔드 서버와 SQLite 데이터베이스를 포함한 완전한 패키징을 제공합니다.
+ZeroBoy는 고급 안티디텍팅 기술을 활용한 브라우저 관리 시스템입니다. NestJS, React, Electron, camoufox-js를 조합하여 강력한 웹 지문 관리 및 브라우저 자동화 기능을 제공합니다.
 
-## 🚀 주요 기능
-
-- **브라우저 프로필 관리**: Puppeteer를 통한 브라우저 인스턴스 생성 및 관리
-- **SQLite 데이터베이스**: 로컬 데이터 저장 및 관리
-- **다크/라이트 테마**: 사용자 친화적인 UI 테마 지원
-- **다국어 지원**: 한국어/영어 언어 전환
-- **Tanstack Query**: 효율적인 API 상태 관리
-- **커스텀 알림 시스템**: 네이티브 alert/confirm 대체
-
-## 📋 시스템 요구사항
-
-- **Node.js**: 20.16.0 이상
-- **npm**: 9.0.0 이상
-- **운영체제**: Windows, macOS, Linux
-
-## 🛠️ 설치 및 실행
-
-### 1. 저장소 클론
-
-```bash
-git clone https://github.com/yunjjang99/ZeroBoy.git
-cd ZeroBoy
-```
-
-### 2. 의존성 설치
-
-```bash
-# 전체 프로젝트 의존성 설치
-npm run install:all
-
-# 또는 개별 설치
-cd backend && npm install && cd ..
-cd frontend && npm install && cd ..
-cd electron && npm install && cd ..
-```
-
-### 3. 개발 모드 실행
-
-#### 방법 1: 자동 스크립트 사용 (권장)
-
-```bash
-# 개발 모드로 Electron 앱 실행
-./dev-electron-app.sh
-```
-
-#### 방법 2: 수동 실행
-
-```bash
-# 백엔드와 프론트엔드를 동시에 실행
-npm run dev
-
-# 또는 개별 실행
-npm run dev:backend  # 백엔드만 (포트 7777)
-npm run dev:frontend # 프론트엔드만 (포트 5173)
-```
-
-## 🏗️ 빌드 및 패키징
-
-### 완전한 데스크톱 앱 빌드
-
-#### 방법 1: 자동 빌드 스크립트 사용 (권장)
-
-```bash
-# 전체 프로젝트 빌드 및 Electron 앱 패키징
-./build-electron-app.sh
-```
-
-#### 방법 2: 기존 빌드 스크립트
-
-```bash
-# 기존 자동 빌드 스크립트 실행
-./build.sh
-
-# 또는 수동 빌드
-npm run build        # 백엔드 + 프론트엔드 빌드
-npm run package      # 일렉트론 앱 패키징
-```
-
-#### 방법 3: 개별 빌드
-
-```bash
-# 백엔드 빌드
-cd backend && npm run build && cd ..
-
-# 프론트엔드 빌드
-cd frontend && npm run build && cd ..
-
-# Electron 앱 빌드
-cd electron && npm run dist && cd ..
-```
-
-### 빌드 결과물
-
-- **백엔드**: `backend/dist/`
-- **프론트엔드**: `frontend/dist/`
-- **Electron 앱**: `electron/build/` (새로운 구조)
-- **기존 Electron 앱**: `frontend/release/` (기존 구조)
-
-## 📁 프로젝트 구조
+## 🏗️ 아키텍처
 
 ```
 ZeroBoy/
-├── backend/                 # NestJS 백엔드
+├── backend/              # NestJS 서버 (포트: 7778)
 │   ├── src/
-│   │   ├── fingerprint/     # 브라우저 프로필 관리
-│   │   ├── puppeteer/       # 브라우저 자동화
-│   │   └── user/           # 사용자 관리
-│   ├── data/               # SQLite 데이터베이스
-│   └── dist/               # 빌드 결과물
-├── frontend/               # React 프론트엔드
+│   │   ├── puppeteer/    # camoufox-js + Playwright 기반 브라우저 관리
+│   │   └── utils/        # 지문 생성 및 관리
+│   └── package.json
+├── frontend/            # React 앱
 │   ├── src/
-│   │   ├── components/     # React 컴포넌트
-│   │   ├── api/           # API 호출 함수
-│   │   ├── hooks/         # Tanstack Query 훅
-│   │   └── contexts/      # React Context
-│   └── dist/              # 빌드 결과물
-├── electron/               # Electron 데스크톱 앱 (새로운 구조)
+│   │   ├── components/  # UI 컴포넌트
+│   │   ├── pages/       # 페이지 컴포넌트
+│   │   └── api/         # API 클라이언트
+│   └── package.json
+├── electron/            # Electron 데스크탑 앱
 │   ├── src/
-│   │   ├── main.ts         # 메인 프로세스
-│   │   ├── preload.ts      # 프리로드 스크립트
-│   │   └── update.ts       # 업데이트 관련
-│   ├── dist/              # TypeScript 컴파일 결과물
-│   ├── resources/         # 앱 아이콘 및 리소스
-│   ├── package.json       # Electron 의존성
-│   └── tsconfig.json      # TypeScript 설정
-├── build-electron-app.sh   # 전체 빌드 스크립트
-├── dev-electron-app.sh     # 개발 모드 실행 스크립트
-├── build.sh               # 기존 자동 빌드 스크립트
-└── package.json           # 루트 설정
+│   └── package.json
+├── data/               # Chrome 바이너리 및 데이터
+│   └── chrome/
+└── package.json        # 프로젝트 루트 설정
 ```
 
-## 🔧 기술 스택
+## 🚀 주요 기능
 
-### 백엔드
+### 1. **고급 안티디텍팅 브라우저**
 
-- **NestJS**: Node.js 프레임워크
-- **TypeORM**: SQLite ORM
-- **Puppeteer**: 브라우저 자동화
-- **Socket.io**: 실시간 통신
+- **camoufox-js**: Playwright 기반의 강력한 안티디텍팅 브라우저
+- **실제 사용자 시뮬레이션**: 자연스러운 마우스 움직임, 키보드 입력
+- **웹 지문 관리**: Canvas, WebGL, Screen, Navigator 속성 조작
 
-### 프론트엔드
+### 2. **고급 안티디텍팅**
 
-- **React 18**: UI 라이브러리
-- **Electron**: 데스크톱 앱 프레임워크
-- **Tanstack Query**: 서버 상태 관리
-- **Tailwind CSS**: 스타일링
-- **TypeScript**: 타입 안전성
+- **웹 지문 관리**: Canvas, WebGL, Screen, Navigator 속성 조작
+- **자동화 감지 방지**: webdriver, selenium, puppeteer 속성 완전 제거
+- **실제 사용자 시뮬레이션**: 자연스러운 마우스 움직임, 키보드 입력
 
-## 🎯 주요 API 엔드포인트
+### 3. **단일 서버 아키텍처**
 
-### 브라우저 프로필 관리
+- **NestJS 서버**: 메인 API 및 모든 브라우저 관리
+- **camoufox-js**: Node.js 환경에서 직접 실행되는 안티디텍팅 브라우저
+- **Playwright**: 강력한 브라우저 자동화 엔진
 
-- `GET /fingerprint/profiles` - 프로필 목록 조회
-- `POST /fingerprint/profiles` - 새 프로필 생성
-- `DELETE /fingerprint/profiles/:uuid` - 프로필 삭제
+## 🛠️ 설치 및 실행
 
-### Puppeteer 브라우저 제어
-
-- `POST /puppeteer/launch` - 새 브라우저 실행
-- `POST /puppeteer/reopen` - 브라우저 재시작
-- `GET /puppeteer/status` - 브라우저 상태 조회
-
-## 🎨 UI 컴포넌트
-
-- **BrowserProfilesSection**: 브라우저 프로필 목록 표시
-- **BrowserProfileCard**: 개별 프로필 카드
-- **AlertModal**: 커스텀 알림 모달
-- **ConfirmModal**: 커스텀 확인 모달
-- **Toast**: 토스트 알림
-- **UrlInputModal**: URL 입력 모달
-
-## 🔄 개발 워크플로우
-
-1. **백엔드 개발**: NestJS 컨트롤러 및 서비스 수정
-2. **프론트엔드 개발**: React 컴포넌트 및 API 연동
-3. **테스트**: 개발 모드에서 기능 테스트
-4. **빌드**: 프로덕션 빌드 및 패키징
-5. **배포**: 일렉트론 앱 배포
-
-## 🐛 문제 해결
-
-### 백엔드 서버 연결 오류
-
-- 포트 7777이 사용 가능한지 확인
-- 백엔드 빌드가 완료되었는지 확인
-
-### SQLite 데이터베이스 오류
-
-- `/data/db` 디렉토리 존재 확인
-- 데이터베이스 파일 권한 확인
-
-### 일렉트론 빌드 오류
-
-- Node.js 버전 확인 (20.16.0 이상)
-- 모든 의존성 설치 확인
-
-### SQLite UNIQUE 제약 조건 오류
-
-거래 페어 생성 시 "UNIQUE constraint failed" 오류가 발생하는 경우:
+### 1. **전체 프로젝트 설정**
 
 ```bash
-# name 컬럼 제거 마이그레이션 실행 (권장)
-./migrate-remove-name-column.sh
+# 프로젝트 클론
+git clone <repository-url>
+cd ZeroBoy
 
-# 또는 수동으로 데이터베이스 정리
-sqlite3 data/db/db.sqlite "DELETE FROM trading_coins; DELETE FROM trading_pairs;"
+# 전체 의존성 설치 (Playwright 브라우저 포함)
+npm run setup
 ```
 
-**주의**: 마이그레이션 스크립트는 자동으로 백업을 생성합니다. 수동 정리는 기존 거래 페어 데이터를 모두 삭제합니다.
+### 2. **개별 서버 실행**
 
-## 📝 라이선스
+```bash
+# 개발 모드 (모든 서버 동시 실행)
+npm run start:dev
 
-ISC License
+# 프로덕션 모드
+npm run start
+```
+
+### 3. **개별 서버 실행**
+
+```bash
+# NestJS 서버만
+npm run start:backend:dev
+
+# React 프론트엔드만
+npm run start:frontend:dev
+```
+
+## 📊 API 엔드포인트
+
+### NestJS 서버 (포트: 7778)
+
+```
+POST   /puppeteer/browser/create     # Camoufox 브라우저 생성
+GET    /puppeteer/browser/:uuid      # 브라우저 상태 조회
+POST   /puppeteer/browser/:uuid/reopen  # 브라우저 재시작
+DELETE /puppeteer/browser/:uuid      # 브라우저 종료
+GET    /puppeteer/browsers           # 모든 브라우저 목록
+```
+
+## 🔧 환경 변수
+
+```bash
+# NestJS 서버
+NODE_ENV=production
+BACKEND_PORT=7778
+DB_PATH=./data/db/db.sqlite
+CHROME_PATH=/Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+```
+
+## 🏗️ 빌드 및 배포
+
+### 1. **개발 빌드**
+
+```bash
+# 백엔드 빌드
+npm run build:backend
+
+# 프론트엔드 빌드
+npm run build:frontend
+
+# Electron 빌드
+npm run build:electron
+```
+
+### 2. **전체 빌드**
+
+```bash
+npm run build
+```
+
+### 3. **배포 패키지 생성**
+
+```bash
+# 개발용 패키지
+npm run pack
+
+# 배포용 패키지
+npm run dist
+```
+
+## 🧪 테스트
+
+```bash
+# 전체 테스트
+npm run test
+
+# 백엔드 테스트만
+npm run test:backend
+
+# 프론트엔드 테스트만
+npm run test:frontend
+```
+
+## 📝 코드 품질
+
+```bash
+# 전체 린트
+npm run lint
+
+# 백엔드 린트만
+npm run lint:backend
+
+# 프론트엔드 린트만
+npm run lint:frontend
+```
+
+## 🔍 안티디텍팅 기능
+
+### 1. **웹 지문 관리**
+
+- **Canvas 조작 방지**: Canvas 함수 원본 유지
+- **WebGL 속성 조작**: GPU 정보만 최소한으로 수정
+- **Screen 속성**: 실제 화면 크기와 일치
+- **Navigator 속성**: 언어, 플랫폼, 하드웨어 정보 관리
+
+### 2. **자동화 감지 방지**
+
+- **webdriver 속성 완전 제거**: navigator, window, document에서 모두 제거
+- **프로토타입 체인 순회**: 상속된 속성까지 완전 제거
+- **toString 오버라이드**: 자동화 관련 문자열 완전 차단
+- **지속적인 모니터링**: setInterval로 지속적인 webdriver 제거
+
+### 3. **실제 사용자 시뮬레이션**
+
+- **자연스러운 지연**: geolocation 요청에 랜덤 지연
+- **실제 화면 크기**: 고정 크기 대신 실제 화면 크기 사용
+- **Chrome 버전 일치**: UserAgent와 실제 브라우저 버전 일치
+
+## 🚀 camoufox-js + Playwright 장점
+
+### 1. **단순한 아키텍처**
+
+- Python 서버 불필요
+- Node.js 환경에서 직접 실행
+- 빌드/배포 프로세스 단순화
+
+### 2. **강력한 안티디텍팅**
+
+- camoufox-js의 고급 안티디텍팅 기능
+- Playwright의 안정적인 브라우저 자동화
+- 실제 사용자와 동일한 환경 시뮬레이션
+
+### 3. **개발 편의성**
+
+- TypeScript 지원
+- NestJS와 완벽 통합
+- 단일 언어 스택 (JavaScript/TypeScript)
 
 ## 🤝 기여하기
 
@@ -224,7 +207,20 @@ ISC License
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## 📄 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
+
 ## 📞 지원
 
-- **이슈**: [GitHub Issues](https://github.com/yunjjang99/ZeroBoy/issues)
-- **문서**: [GitHub Wiki](https://github.com/yunjjang99/ZeroBoy/wiki)
+- **이슈 리포트**: GitHub Issues
+- **문서**: [Wiki](https://github.com/your-repo/wiki)
+- **이메일**: support@zeroboy.com
+
+## 🙏 감사의 말
+
+- [camoufox-js](https://github.com/apify/camoufox-js)
+- [Playwright](https://playwright.dev/)
+- [NestJS](https://nestjs.com/)
+- [React](https://reactjs.org/)
+- [Electron](https://www.electronjs.org/)

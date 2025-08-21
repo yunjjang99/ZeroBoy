@@ -32,7 +32,7 @@ async function bootstrap() {
   app.set("trust proxy", 1);
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  const port = process.env.BACKEND_PORT || 7777;
+  const port = 7777;
   await app.listen(port);
 
   console.log(`✅ Application is running on: http://localhost:${port}`);

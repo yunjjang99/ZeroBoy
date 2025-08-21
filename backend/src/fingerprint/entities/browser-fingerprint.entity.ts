@@ -35,6 +35,30 @@ export class BrowserFingerprint {
   @Column()
   gpuModel: string;
 
+  @Column("json", { nullable: true })
+  webglVendor?: string;
+
+  @Column("json", { nullable: true })
+  webglRenderer?: string;
+
+  @Column("json", { nullable: true })
+  webglExtensions?: string[];
+
+  @Column("json", { nullable: true })
+  canvasFingerprint?: string;
+
+  @Column("json", { nullable: true })
+  audioFingerprint?: string;
+
+  @Column("json", { nullable: true })
+  fontList?: string[];
+
+  @Column("json", { nullable: true })
+  plugins?: string[];
+
+  @Column("json", { nullable: true })
+  mimeTypes?: string[];
+
   @Column()
   webdriver: boolean;
 

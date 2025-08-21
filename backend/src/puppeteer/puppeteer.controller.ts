@@ -1,5 +1,5 @@
-// src/puppeteer-test/puppeteer.controller.ts
-import { Controller, Post, Body, Get } from "@nestjs/common";
+// src/puppeteer/puppeteer.controller.ts
+import { Controller, Post, Body, Get, Param, Delete } from "@nestjs/common";
 import { PuppeteerService } from "./puppeteer.service";
 import { failure, success } from "@/utils/functionalUtil";
 
@@ -7,21 +7,28 @@ import { failure, success } from "@/utils/functionalUtil";
 export class PuppeteerController {
   constructor(private readonly puppeteerService: PuppeteerService) {}
 
-  @Post("launch")
-  async launchBrowser(@Body("url") url: string) {
-    const browser = await this.puppeteerService.createBrowser(url);
+  @Post("browser/create")
+  async createBrowser(
+    @Body() body: { siteUrl: string; accountInfo?: any; exchange?: string }
+  ) {
+    try {
+      const browser = await this.puppeteerService.createBrowser(
+        body.siteUrl,
+        body.accountInfo,
+        body.exchange
+      );
 
-    const pages = await browser.browser.pages();
-    const page = pages[0]; // 첫 번째 탭
-
-    // await page.goto(url, { waitUntil: "networkidle2", timeout: 10000 });
-    const title = await page.title();
-    // await page.close();
-    return success({ title, uuid: browser.uuid });
+      return success({
+        uuid: browser.uuid,
+        message: "Camoufox browser created successfully",
+      });
+    } catch (error) {
+      return failure({ message: error.message });
+    }
   }
 
-  @Post("reopen")
-  async reopenBrowser(@Body("uuid") uuid: string) {
+  @Post("browser/:uuid/reopen")
+  async reopenBrowser(@Param("uuid") uuid: string) {
     try {
       if (!uuid) {
         return failure({ message: "UUID가 비어 있습니다." });
@@ -30,27 +37,98 @@ export class PuppeteerController {
       const result = await this.puppeteerService.reopenBrowser(uuid);
 
       return success({
-        title: result.title,
-        isAlreadyRunning: result.isAlreadyRunning,
-        message: result.isAlreadyRunning
-          ? "이미 열려있는 브라우저를 맨 위로 올렸습니다."
-          : "브라우저가 재생성되었습니다.",
+        uuid: result.uuid,
+        message: "Camoufox browser reopened successfully",
       });
-    } catch (err) {
-      console.error("reopen error:", err);
-      return failure(err.message ?? { message: err.message });
+    } catch (error) {
+      return failure({ message: error.message });
     }
   }
 
-  @Get("status")
-  async browserStatus() {
-    const statuses = await this.puppeteerService.getBrowserStatuses();
-    return success({ count: statuses.length, statuses });
+  @Delete("browser/:uuid")
+  async closeBrowser(@Param("uuid") uuid: string) {
+    try {
+      if (!uuid) {
+        return failure({ message: "UUID가 비어 있습니다." });
+      }
+
+      await this.puppeteerService.closeBrowser(uuid);
+
+      return success({
+        uuid,
+        message: "Camoufox browser closed successfully",
+      });
+    } catch (error) {
+      return failure({ message: error.message });
+    }
   }
 
-  @Get("active-browsers")
-  async getActiveBrowsers() {
-    const activeBrowsers = await this.puppeteerService.getActiveBrowsers();
-    return success({ count: activeBrowsers.length, browsers: activeBrowsers });
+  @Get("browsers")
+  async getAllBrowsers() {
+    try {
+      const browsers = await this.puppeteerService.getAllBrowsers();
+      const browserList = Array.from(browsers.keys()).map((uuid) => ({ uuid }));
+
+      return success({
+        count: browserList.length,
+        browsers: browserList,
+      });
+    } catch (error) {
+      return failure({ message: error.message });
+    }
+  }
+
+  @Get("browser/:uuid")
+  async getBrowser(@Param("uuid") uuid: string) {
+    try {
+      const browser = await this.puppeteerService.getBrowser(uuid);
+
+      if (!browser) {
+        return failure({ message: "Browser not found" });
+      }
+
+      return success({
+        uuid,
+        status: "running",
+      });
+    } catch (error) {
+      return failure({ message: error.message });
+    }
+  }
+
+  @Get("browser/:uuid/fingerprint")
+  async getBrowserFingerprint(@Param("uuid") uuid: string) {
+    try {
+      const fingerprint =
+        await this.puppeteerService.getBrowserFingerprint(uuid);
+
+      if (!fingerprint) {
+        return failure({ message: "Fingerprint not found" });
+      }
+
+      return success({
+        uuid,
+        fingerprint,
+      });
+    } catch (error) {
+      return failure({ message: error.message });
+    }
+  }
+
+  @Post("browser/:uuid/update-fingerprint")
+  async updateBrowserFingerprint(
+    @Param("uuid") uuid: string,
+    @Body()
+    body: { userAgent?: string; webglVendor?: string; webglRenderer?: string }
+  ) {
+    try {
+      await this.puppeteerService.updateBrowserFingerprint(uuid, body);
+      return success({
+        uuid,
+        message: "Fingerprint updated successfully",
+      });
+    } catch (error) {
+      return failure({ message: error.message });
+    }
   }
 }

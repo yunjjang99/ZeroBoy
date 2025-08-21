@@ -2,10 +2,8 @@ import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserModule } from "./user/user.module";
-import { User } from "@/user/entities/user.entity";
 import { AuthModule } from "./auth/auth.module";
 import { typeOrmConfig } from "ormconfig";
-import { LoggerMiddleware } from "./common/middleware/logger.middleware";
 import { IpGeolocationMiddleware } from "./common/middleware/ip-geolocation.middleware"; // IP 미들웨어 추가
 import { AppLogger } from "./app.logger";
 import { APP_INTERCEPTOR } from "@nestjs/core";
